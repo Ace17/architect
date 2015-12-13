@@ -117,6 +117,7 @@ Value eval(AstExpr expr, Env env)
     {
     case BinOp.Add: return add(op1, op2);
     case BinOp.Sub: return sub(op1, op2);
+    case BinOp.Mul: return mul(op1, op2);
     }
   }
 

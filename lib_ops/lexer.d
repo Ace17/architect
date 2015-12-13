@@ -40,6 +40,7 @@ unittest
   assertEquals([TK.Identifier, TK.Semicolon], filter(runLexer("hello;")));
   assertEquals([TK.Plus], filter(runLexer("+")));
   assertEquals([TK.Minus], filter(runLexer("-")));
+  assertEquals([TK.Mul], filter(runLexer("*")));
   assertEquals([TK.Identifier], filter(runLexer("var123 // comment\n")));
   assertEquals([TK.Let, TK.Identifier, TK.Equal, TK.Number], filter(runLexer("let a = -1\n")));
 }
@@ -84,6 +85,7 @@ enum TK
   Equal,
   Plus,
   Minus,
+  Mul,
   Semicolon,
   Comma,
   LeftPar,
@@ -116,6 +118,7 @@ Token nextToken(string s)
     { "^//.*\n", TK.White }, // C++ style comments
     { r"^,", TK.Comma },
     { r"^\+", TK.Plus },
+    { r"^\*", TK.Mul },
     { r"^-", TK.Minus },
     { r"^\(", TK.LeftPar },
     { r"^\)", TK.RightPar },

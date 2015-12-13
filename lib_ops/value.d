@@ -15,46 +15,8 @@
 
 import std.string;
 import algebraic: Either;
-
-struct Vec2
-{
-  float x, y;
-
-  Vec2 opAdd(in Vec2 other) const
-  {
-    return Vec2(x + other.x, y + other.y);
-  }
-
-  Vec2 opSub(in Vec2 other) const
-  {
-    return Vec2(x - other.x, y - other.y);
-  }
-
-  Vec2 opMul(float f) const
-  {
-    return Vec2(f * x, f * y);
-  }
-}
-
-struct Vec3
-{
-  float x, y, z;
-
-  Vec3 opAdd(in Vec3 other) const
-  {
-    return Vec3(x + other.x, y + other.y, z + other.z);
-  }
-
-  Vec3 opSub(in Vec3 other) const
-  {
-    return Vec3(x - other.x, y - other.y, z + other.z);
-  }
-
-  Vec3 opMul(float f) const
-  {
-    return Vec3(f * x, f * y, f * z);
-  }
-}
+import misc;
+public import vect;
 
 struct Real
 {
@@ -172,6 +134,31 @@ Value sub(Value a, Value b)
   Value onVec3(Vec3 r)
   {
     return Value(r - asVec3(b));
+  }
+
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
+}
+
+Value mul(Value a, Value b)
+{
+  Value fail(T)(T)
+  {
+    throw new Exception(format("Can't mul to this type: %s", T.stringof));
+  }
+
+  Value onReal(Real r)
+  {
+    return mkReal(r.val + asReal(b));
+  }
+
+  Value onVec2(Vec2 r)
+  {
+    return Value(r * asReal(b));
+  }
+
+  Value onVec3(Vec3 r)
+  {
+    return Value(r * asReal(b));
   }
 
   return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);

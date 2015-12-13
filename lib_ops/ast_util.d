@@ -76,6 +76,7 @@ string toString(BinOp op)
   {
   case BinOp.Add: return "+";
   case BinOp.Sub: return "-";
+  case BinOp.Mul: return "*";
   }
 }
 

@@ -130,7 +130,7 @@ class Parser
 
   AstExpr binOp()
   {
-    AstExpr r = atom();
+    AstExpr r = factor();
 
     for(;;)
     {
@@ -140,6 +140,27 @@ class Parser
         type = BinOp.Add;
       else if(frontType(s) == TK.Minus)
         type = BinOp.Sub;
+      else
+        break;
+
+      pop(s);
+      auto other = factor();
+      r = AstExpr(AstBinOp(type, [r, other]));
+    }
+
+    return r;
+  }
+
+  AstExpr factor()
+  {
+    AstExpr r = atom();
+
+    for(;;)
+    {
+      BinOp type;
+
+      if(frontType(s) == TK.Mul)
+        type = BinOp.Mul;
       else
         break;
 

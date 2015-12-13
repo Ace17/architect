@@ -64,6 +64,7 @@ enum BinOp
 {
   Add,
   Sub,
+  Mul,
 }
 
 struct AstNumber
