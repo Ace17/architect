@@ -149,6 +149,11 @@ Value builtin_vec2(float x, float y)
   return mkVec2(x, y);
 }
 
+Value builtin_vec3(float x, float y, float z)
+{
+  return mkVec3(x, y, z);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class EditionState
@@ -190,6 +195,10 @@ void registerRealizeFunc(alias F, string name)()
       static if(is (typeof(arg) == Vec2))
       {
         arg = asVec2(argVals[i]);
+      }
+      else static if(is (typeof(arg) == Vec3))
+      {
+        arg = asVec3(argVals[i]);
       }
       else
       {
@@ -234,7 +243,7 @@ void registerBuiltinFunc(alias F, string name)()
 
 static this()
 {
-  // values
   registerBuiltinFunc!(builtin_vec2, "Vec2")();
+  registerBuiltinFunc!(builtin_vec3, "Vec3")();
 }
 

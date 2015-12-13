@@ -31,6 +31,21 @@ struct Vec2
   }
 }
 
+struct Vec3
+{
+  float x, y, z;
+
+  Vec3 opAdd(in Vec3 other) const
+  {
+    return Vec3(x + other.x, y + other.y, z + other.z);
+  }
+
+  Vec3 opSub(in Vec3 other) const
+  {
+    return Vec3(x - other.x, y - other.y, z + other.z);
+  }
+}
+
 struct Real
 {
   float val;
@@ -40,7 +55,7 @@ struct Null
 {
 }
 
-alias Either!(Null, Real, Vec2) Value;
+alias Either!(Null, Real, Vec2, Vec3) Value;
 
 auto mkReal(float val)
 {
@@ -50,6 +65,11 @@ auto mkReal(float val)
 auto mkVec2(float x, float y)
 {
   return Value(Vec2(x, y));
+}
+
+auto mkVec3(float x, float y, float z)
+{
+  return Value(Vec3(x, y, z));
 }
 
 float asReal(in Value val)
@@ -64,14 +84,14 @@ float asReal(in Value val)
     return r.val;
   }
 
-  return val.visit!(fail!Null, onReal, fail!Vec2)();
+  return val.visit!(fail!Null, onReal, fail!Vec2, fail!Vec3)();
 }
 
 Vec2 asVec2(in Value val)
 {
   static Vec2 fail(T)(in T)
   {
-    throw new Exception("Expected a real number");
+    throw new Exception("Expected a Vec2");
   }
 
   static Vec2 onVec2(in Vec2 r)
@@ -79,7 +99,22 @@ Vec2 asVec2(in Value val)
     return r;
   }
 
-  return val.visit!(fail!Null, fail!Real, onVec2)();
+  return val.visit!(fail!Null, fail!Real, onVec2, fail!Vec3)();
+}
+
+Vec3 asVec3(in Value val)
+{
+  static Vec3 fail(T)(in T)
+  {
+    throw new Exception("Expected a Vec3");
+  }
+
+  static Vec3 onVec3(in Vec3 r)
+  {
+    return r;
+  }
+
+  return val.visit!(fail!Null, fail!Real, fail!Vec2, onVec3)();
 }
 
 Value add(Value a, Value b)
@@ -99,7 +134,12 @@ Value add(Value a, Value b)
     return Value(r + asVec2(b));
   }
 
-  return a.visitDg!Value(&fail!Null, &onReal, &onVec2);
+  Value onVec3(Vec3 r)
+  {
+    return Value(r + asVec3(b));
+  }
+
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
 }
 
 Value sub(Value a, Value b)
@@ -119,7 +159,12 @@ Value sub(Value a, Value b)
     return Value(r - asVec2(b));
   }
 
-  return a.visitDg!Value(&fail!Null, &onReal, &onVec2);
+  Value onVec3(Vec3 r)
+  {
+    return Value(r - asVec3(b));
+  }
+
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
 }
 
 string toString(Value a)
@@ -139,6 +184,11 @@ string toString(Value a)
     return format("Vec2(%.2s, %.2s)", r.x, r.y);
   }
 
-  return a.visitDg(&defaultString, &onReal, &onVec2);
+  string onVec3(Vec3 r)
+  {
+    return format("Vec3(%.2s, %.2s, %.2s)", r.x, r.y, r.z);
+  }
+
+  return a.visitDg(&defaultString, &onReal, &onVec2, &onVec3);
 }
 

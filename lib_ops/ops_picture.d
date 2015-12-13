@@ -38,13 +38,13 @@ void op_picture(EditionState state, Value[] values)
   state.board = pic;
 }
 
-void op_fill(Picture pic, float r, float g, float b)
+void op_fill(Picture pic, Vec3 color)
 {
   void setToLuma(int x, int y, ref Pixel pel)
   {
-    pel.r = r;
-    pel.g = g;
-    pel.b = b;
+    pel.r = color.x;
+    pel.g = color.y;
+    pel.b = color.z;
     pel.a = 1.0f;
   }
 
