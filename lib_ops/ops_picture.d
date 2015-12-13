@@ -80,6 +80,23 @@ void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
   }
 }
 
+void op_emptyrect(Picture pic, Vec3 color)
+{
+  auto block = pic.currBlock;
+
+  for(int ix = 0; ix < block.dim.w; ix++)
+    pic.currBlock()(ix, 0) = toPixel(color);
+
+  for(int ix = 0; ix < block.dim.w; ix++)
+    pic.currBlock()(ix, block.dim.h - 1) = toPixel(color);
+
+  for(int iy = 0; iy < block.dim.h; iy++)
+    pic.currBlock()(0, iy) = toPixel(color);
+
+  for(int iy = 0; iy < block.dim.h; iy++)
+    pic.currBlock()(block.dim.w - 1, iy) = toPixel(color);
+}
+
 Pixel toPixel(Vec3 v)
 {
   return Pixel(v.x, v.y, v.z, 1.0);
@@ -107,6 +124,7 @@ static this()
 
   registerRealizeFunc!(op_fill, "fill")();
   registerRealizeFunc!(op_rect, "fillrect")();
+  registerRealizeFunc!(op_emptyrect, "emptyrect")();
   registerRealizeFunc!(op_gradient, "gradient")();
   registerRealizeFunc!(op_select, "select")();
   registerRealizeFunc!(op_deselect, "deselect")();
