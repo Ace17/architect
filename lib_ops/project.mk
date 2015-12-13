@@ -13,6 +13,7 @@ srcs:=\
 	$(THIS)/lexer.d\
 	$(THIS)/loader.d\
 	$(THIS)/ops_building.d\
+	$(THIS)/ops_picture.d\
 	$(THIS)/ops_sound.d\
 	$(THIS)/parser.d\
 	$(THIS)/raii.d\
