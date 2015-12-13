@@ -51,10 +51,27 @@ void op_fill(Picture pic, Vec3 color)
   pic.pixels.scan(&setToLuma);
 }
 
+void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
+{
+  for(int y = 0; y < size.x; y++)
+  {
+    for(int x = 0; x < size.y; x++)
+    {
+      const pel = Pixel(color.x, color.y, color.z, 1.0f);
+      const ix = cast(int)pos.x + x;
+      const iy = cast(int)pos.y + y;
+
+      if(isInside(pic.pixels, ix, iy))
+        pic.pixels.set(ix, iy, pel);
+    }
+  }
+}
+
 static this()
 {
   g_Operations["picture"] = &op_picture;
 
   registerRealizeFunc!(op_fill, "fill")();
+  registerRealizeFunc!(op_rect, "fillrect")();
 }
 
