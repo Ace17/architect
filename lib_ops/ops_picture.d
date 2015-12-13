@@ -36,24 +36,31 @@ void op_picture(EditionState state, Value[] values)
   const w = cast(int)size.x;
   const h = cast(int)size.y;
   pic.data.length = w * h;
-  pic.block = Block(pic.data.ptr, Dimension(w, h), w);
+  pic.blocks = [];
+  pic.blocks ~= Block(pic.data.ptr, Dimension(w, h), w);
 
   state.board = pic;
 }
 
 void op_fill(Picture pic, Vec3 color)
 {
-  pic.data[] = toPixel(color);
+  auto block = pic.currBlock;
+
+  for(int y = 0; y < block.dim.h; y++)
+    for(int x = 0; x < block.dim.w; x++)
+      block(x, y) = toPixel(color);
 }
 
 void op_gradient(Picture pic, Vec3 color1, Vec3 color2, Vec2 direction)
 {
-  for(int y = 0; y < pic.block.dim.h; y++)
+  auto block = pic.currBlock;
+
+  for(int y = 0; y < block.dim.h; y++)
   {
-    for(int x = 0; x < pic.block.dim.w; x++)
+    for(int x = 0; x < block.dim.w; x++)
     {
-      const alpha = cast(float)(x + y) / cast(float)(pic.block.dim.w);
-      pic.block(x, y) = toPixel(blend(color1, color2, alpha));
+      const alpha = cast(float)(x + y) / cast(float)(block.dim.w);
+      block(x, y) = toPixel(blend(color1, color2, alpha));
     }
   }
 }
@@ -67,8 +74,8 @@ void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
       const ix = cast(int)pos.x + x;
       const iy = cast(int)pos.y + y;
 
-      if(pic.block.isInside(ix, iy))
-        pic.block(ix, iy) = toPixel(color);
+      if(pic.currBlock.isInside(ix, iy))
+        pic.currBlock()(ix, iy) = toPixel(color);
     }
   }
 }
@@ -78,6 +85,22 @@ Pixel toPixel(Vec3 v)
   return Pixel(v.x, v.y, v.z, 1.0);
 }
 
+void op_select(Picture pic, Vec2 pos, Vec2 size)
+{
+  auto block = pic.currBlock();
+  auto addr = block.pixels + cast(int)pos.x + block.stride * cast(int)pos.y;
+  auto subBlock = Block(addr, Dimension(cast(int)size.x, cast(int)size.y), block.stride);
+  pic.blocks ~= subBlock;
+}
+
+void op_deselect(Picture pic)
+{
+  if(pic.blocks.length <= 1)
+    throw new Exception("Nothing to deselect");
+
+  pic.blocks.length--;
+}
+
 static this()
 {
   g_Operations["picture"] = &op_picture;
@@ -85,5 +108,7 @@ static this()
   registerRealizeFunc!(op_fill, "fill")();
   registerRealizeFunc!(op_rect, "fillrect")();
   registerRealizeFunc!(op_gradient, "gradient")();
+  registerRealizeFunc!(op_select, "select")();
+  registerRealizeFunc!(op_deselect, "deselect")();
 }
 

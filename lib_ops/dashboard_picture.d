@@ -25,21 +25,46 @@ class Picture : Dashboard
   this()
   {
     data.length = 256 * 256;
-    block = Block(data.ptr, Dimension(256, 256), 256);
+    blocks ~= Block(data.ptr, Dimension(256, 256), 256);
   }
 
-  Dimension getSize() const
+  Dimension getSize()
   {
-    return block.dim;
+    return currBlock().dim;
   }
 
-  Block block;
+  Block currBlock()
+  {
+    return blocks[$ - 1];
+  }
+
+  Block[] blocks;
   Pixel[] data;
 }
 
 struct Pixel
 {
   float r, g, b, a;
+
+  Pixel opAdd(in Pixel other) const
+  {
+    Pixel result = this;
+    result.r += other.r;
+    result.g += other.g;
+    result.b += other.b;
+    result.a += other.a;
+    return result;
+  }
+
+  Pixel opSub(in Pixel other) const
+  {
+    Pixel result = this;
+    result.r -= other.r;
+    result.g -= other.g;
+    result.b -= other.b;
+    result.a -= other.a;
+    return result;
+  }
 }
 
 struct Block

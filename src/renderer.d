@@ -168,7 +168,8 @@ public:
       return cast(ubyte)(clamp(scaled, 0, 255));
     }
 
-    const size = pic.getSize();
+    const size = pic.blocks[0].dim;
+    auto block = pic.blocks[0];
 
     ubyte[] picBuffer;
     picBuffer.length = size.w * size.h * 4;
@@ -176,7 +177,7 @@ public:
     for(int y = 0; y < size.h; ++y)
       for(int x = 0; x < size.w; ++x)
       {
-        auto pel = pic.block(x, y);
+        auto pel = block(x, y);
         picBuffer[(x + y * size.w) * 4 + 0] = convertPixel(pel.r);
         picBuffer[(x + y * size.w) * 4 + 1] = convertPixel(pel.g);
         picBuffer[(x + y * size.w) * 4 + 2] = convertPixel(pel.b);
