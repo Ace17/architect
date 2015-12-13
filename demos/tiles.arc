@@ -52,6 +52,8 @@ cube_room(pos)
   rect(pos + Vec2(7, 3), vsize, TILE);
   rect(pos + Vec2(0, 3), vsize, TILE);
   rect(pos + Vec2(1, 1), Vec2(6, 6), TILE);
+  
+  rect(pos + Vec2(3,4), Vec2(2,1), 0);
 }
 
 metroid_room(pos, size)
@@ -69,13 +71,24 @@ hallway(pos)
 {
   rect(pos-Vec2(1, 0), Vec2(10, 2), 2);
   rect(pos-Vec2(0, 1), Vec2(8, 4), 2);
+  rect(pos + Vec2(3, -1), Vec2(2,1), 4);
 }
 
 stairs(pos, dy)
 {
-  let size = Vec2(2, 3);
-  rect(pos+Vec2(0,0), size, 2);
-  rect(pos+Vec2(dy,1), size, 2);
-  rect(pos+Vec2(dy+dy,2), size, 2);
-  rect(pos+Vec2(dy+dy+dy,3), size, 2);
+  repeat4(pos, Vec2(dy,1), my_rect);
 }
+
+my_rect(pos, size)
+{
+  rect(pos, Vec2(2, 3), 2);
+}
+
+repeat4(pos, step, op)
+{
+  op(pos+step*0, step);
+  op(pos+step*1, step);
+  op(pos+step*2, step);
+  op(pos+step*3, step);
+}
+

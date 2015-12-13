@@ -14,17 +14,22 @@ parameterizable templates.
 Each keystroke causes the editor to re-compute the list of edit sequence, and
 to immediately execute it to show the resulting output to the user.
 
+Architect is written in the D programming language.
+
 Building
 --------
 
+Requirements:
+- GtkD
+- GDC (GNU D Compiler)
+
 $ make
-
-(TODO)
-
 
 Usage example
 -------------
 
+$ ./bin/architect-gui.exe demos/picture.arc
+$ ./bin/architect-gui.exe demos/sound.arc
 $ ./bin/architect-gui.exe demos/tiles.arc
 
 
