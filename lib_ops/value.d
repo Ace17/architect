@@ -27,7 +27,12 @@ struct Null
 {
 }
 
-alias Either!(Null, Real, Vec2, Vec3) Value;
+struct Identifier
+{
+  string name;
+}
+
+alias Either!(Null, Real, Vec2, Vec3, Identifier) Value;
 
 auto mkReal(float val)
 {
@@ -74,26 +79,22 @@ T valueAs(T)(in Value val)
     return typeCheck(r);
   }
 
-  return val.visit!(onNull, onReal, onVec2, onVec3)();
+  static T onIdentifier(Identifier r)
+  {
+    return typeCheck(r);
+  }
+
+  return val.visit!(onNull, onReal, onVec2, onVec3, onIdentifier)();
 }
 
 float asReal(in Value val)
 {
-  static float fail(T)(in T)
-  {
-    throw new Exception("Expected a real number");
-  }
-
-  static float onReal(in Real r)
-  {
-    return r.val;
-  }
-
-  return val.visit!(fail!Null, onReal, fail!Vec2, fail!Vec3)();
+  return valueAs!Real(val).val;
 }
 
 alias asVec2 = valueAs!Vec2;
 alias asVec3 = valueAs!Vec3;
+alias asIdentifier = valueAs!Identifier;
 
 Value add(Value a, Value b)
 {
@@ -117,7 +118,7 @@ Value add(Value a, Value b)
     return Value(r + asVec3(b));
   }
 
-  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3, &fail!Identifier);
 }
 
 Value sub(Value a, Value b)
@@ -142,7 +143,7 @@ Value sub(Value a, Value b)
     return Value(r - asVec3(b));
   }
 
-  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3, &fail!Identifier);
 }
 
 Value mul(Value a, Value b)
@@ -167,31 +168,36 @@ Value mul(Value a, Value b)
     return Value(r * asReal(b));
   }
 
-  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3);
+  return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3, &fail!Identifier);
 }
 
 string toString(Value a)
 {
-  string defaultString(Null)
+  static string defaultString(Null)
   {
     return "<null>";
   }
 
-  string onReal(Real r)
+  static string onReal(Real r)
   {
     return format("%.2s", r.val);
   }
 
-  string onVec2(Vec2 r)
+  static string onVec2(Vec2 r)
   {
     return format("Vec2(%.2s, %.2s)", r.x, r.y);
   }
 
-  string onVec3(Vec3 r)
+  static string onVec3(Vec3 r)
   {
     return format("Vec3(%.2s, %.2s, %.2s)", r.x, r.y, r.z);
   }
 
-  return a.visitDg(&defaultString, &onReal, &onVec2, &onVec3);
+  static string onIdentifier(Identifier r)
+  {
+    return format("%s", r.name);
+  }
+
+  return a.visit!(defaultString, onReal, onVec2, onVec3, onIdentifier)();
 }
 

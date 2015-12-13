@@ -92,11 +92,19 @@ void realize_user(EditList editList, AstProgram prog, string name, Value[] argVa
   foreach(def; func.defs)
     env.values[def.id] = eval(def.rhs, env);
 
+  foreach(name, def; prog.functions)
+    env.values[name] = Value(Identifier(name));
+
   foreach(ref stmt; func.statements)
   {
     auto argVal = mapArray!eval(stmt.args, env);
 
-    realize(editList, prog, stmt.func, argVal);
+    string funcName = stmt.func;
+
+    if(funcName in env.values)
+      funcName = asIdentifier(env.values[funcName]).name;
+
+    realize(editList, prog, funcName, argVal);
   }
 }
 
