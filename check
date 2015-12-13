@@ -1,0 +1,7 @@
+#!/bin/bash
+set -eu
+./scripts/reformat.sh
+make -j`nproc`
+
+$BIN/architect.exe demos/tiles.arc >/dev/null
+

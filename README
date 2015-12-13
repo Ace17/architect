@@ -1,0 +1,31 @@
+--------------------
+Architect
+by Sebastien Alaiwan
+--------------------
+
+Introduction
+------------
+
+Architect is an instand-feedback generic editor.
+It allows users to specify its document as a sequence of edit steps to the
+final rendering. The list of edit steps is computed from composable and
+parameterizable templates.
+
+Each keystroke causes the editor to re-compute the list of edit sequence, and
+to immediately execute it to show the resulting output to the user.
+
+Building
+--------
+
+$ make
+
+(TODO)
+
+
+Usage example
+-------------
+
+$ ./bin/architect-gui.exe demos/tiles.arc
+
+
+
