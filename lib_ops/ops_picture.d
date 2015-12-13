@@ -48,9 +48,9 @@ void op_fill(Picture pic, Vec3 color)
 
 void op_gradient(Picture pic, Vec3 color1, Vec3 color2, Vec2 direction)
 {
-  for(int y = 0; y < pic.block.dim.w; y++)
+  for(int y = 0; y < pic.block.dim.h; y++)
   {
-    for(int x = 0; x < pic.block.dim.h; x++)
+    for(int x = 0; x < pic.block.dim.w; x++)
     {
       const alpha = cast(float)(x + y) / cast(float)(pic.block.dim.w);
       pic.block(x, y) = toPixel(blend(color1, color2, alpha));
