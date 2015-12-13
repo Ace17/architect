@@ -8,7 +8,7 @@ REPO_URL?=http://code.alaiwan.org/bzr
 
 DFLAGS:=-funittest
 
-DFLAGS+=-g3
+DFLAGS+=-g3 -O3
 LDFLAGS+=-g
 
 THIS:=src
