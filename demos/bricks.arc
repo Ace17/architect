@@ -4,6 +4,7 @@ root()
   
   let blue = Vec3(0.4, 0.8, 1);
   gradient(blue * 0.5, blue, Vec2(1, 1));
+  noise(Vec3(1,1,1));
 
   brickWall(Vec2(12, 12));
 }
@@ -29,6 +30,7 @@ brick()
   let brickColor1 = Vec3(1, 0.3, 0.3);
   let brickColor2 = Vec3(0.4, 0.1, 0.2);
   gradient(brickColor1, brickColor2, Vec2(1, 1));
+  noise(Vec3(0.5, 0.5, 0.5));
   emptyrect(Vec3(0.5, 0.5, 0.5));
 }
 

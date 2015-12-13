@@ -15,6 +15,7 @@
 
 import std.math;
 import std.algorithm;
+import std.random;
 
 import misc;
 
@@ -97,9 +98,32 @@ void op_emptyrect(Picture pic, Vec3 color)
     pic.currBlock()(block.dim.w - 1, iy) = toPixel(color);
 }
 
+void op_noise(Picture pic, Vec3 intensity)
+{
+  auto block = pic.currBlock;
+  intensity = intensity * 0.1;
+
+  for(int y = 0; y < block.dim.h; y++)
+  {
+    for(int x = 0; x < block.dim.w; x++)
+    {
+      Vec3 pixel = toVec3(block(x, y));
+      pixel.x += uniform(-intensity.x, intensity.x);
+      pixel.y += uniform(-intensity.y, intensity.y);
+      pixel.z += uniform(-intensity.z, intensity.z);
+      block(x, y) = toPixel(pixel);
+    }
+  }
+}
+
 Pixel toPixel(Vec3 v)
 {
   return Pixel(v.x, v.y, v.z, 1.0);
+}
+
+Vec3 toVec3(Pixel pel)
+{
+  return Vec3(pel.r, pel.g, pel.b);
 }
 
 void op_select(Picture pic, Vec2 pos, Vec2 size)
@@ -123,6 +147,7 @@ static this()
   g_Operations["picture"] = &op_picture;
 
   registerRealizeFunc!(op_fill, "fill")();
+  registerRealizeFunc!(op_noise, "noise")();
   registerRealizeFunc!(op_rect, "fillrect")();
   registerRealizeFunc!(op_emptyrect, "emptyrect")();
   registerRealizeFunc!(op_gradient, "gradient")();
