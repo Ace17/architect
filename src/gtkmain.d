@@ -139,19 +139,8 @@ private:
     auto font = new PgFontDescription("monospace", 10);
     m_textView.modifyFont(font);
 
-    m_textView.getBuffer().addOnNotify(&onHasSelection, "has-selection");
     r.add(m_textView);
     return r;
-  }
-
-  void onHasSelection(ParamSpec, ObjectG)
-  {
-    auto buff = m_textView.getBuffer();
-
-    if(!buff.getHasSelection())
-      return;
-
-    m_targetId = getSelectedText(buff);
   }
 
   Widget createStatusBar()
@@ -215,13 +204,14 @@ private:
   {
     try
     {
+      m_filename = filename;
+
       const s = cast(string)std.file.read(filename);
       m_textView.getBuffer().setText(s);
 
       loadGraph(s);
 
       setStatusBar(format("Loaded '%s'.", filename));
-      m_filename = filename;
     }
     catch(Exception e)
     {
