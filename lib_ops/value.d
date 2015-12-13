@@ -29,6 +29,11 @@ struct Vec2
   {
     return Vec2(x - other.x, y - other.y);
   }
+
+  Vec2 opMul(float f) const
+  {
+    return Vec2(f * x, f * y);
+  }
 }
 
 struct Vec3
@@ -43,6 +48,11 @@ struct Vec3
   Vec3 opSub(in Vec3 other) const
   {
     return Vec3(x - other.x, y - other.y, z + other.z);
+  }
+
+  Vec3 opMul(float f) const
+  {
+    return Vec3(f * x, f * y, f * z);
   }
 }
 

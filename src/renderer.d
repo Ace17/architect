@@ -176,7 +176,7 @@ public:
     for(int y = 0; y < size.h; ++y)
       for(int x = 0; x < size.w; ++x)
       {
-        auto pel = pic.pixels.get(x, y);
+        auto pel = pic.block(x, y);
         picBuffer[(x + y * size.w) * 4 + 0] = convertPixel(pel.r);
         picBuffer[(x + y * size.w) * 4 + 1] = convertPixel(pel.g);
         picBuffer[(x + y * size.w) * 4 + 2] = convertPixel(pel.b);

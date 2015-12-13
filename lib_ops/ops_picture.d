@@ -16,8 +16,7 @@
 import std.math;
 import std.algorithm;
 
-import array2d;
-import misc: clamp;
+import misc;
 
 import loader;
 import value;
@@ -34,21 +33,29 @@ void op_picture(EditionState state, Value[] values)
   size.y = max(size.y, 16);
 
   auto pic = new Picture;
-  pic.pixels = new Matrix!Pixel(cast(int)size.x, cast(int)size.y);
+  const w = cast(int)size.x;
+  const h = cast(int)size.y;
+  pic.data.length = w * h;
+  pic.block = Block(pic.data.ptr, Dimension(w, h), w);
+
   state.board = pic;
 }
 
 void op_fill(Picture pic, Vec3 color)
 {
-  void setToLuma(int x, int y, ref Pixel pel)
-  {
-    pel.r = color.x;
-    pel.g = color.y;
-    pel.b = color.z;
-    pel.a = 1.0f;
-  }
+  pic.data[] = toPixel(color);
+}
 
-  pic.pixels.scan(&setToLuma);
+void op_gradient(Picture pic, Vec3 color1, Vec3 color2, Vec2 direction)
+{
+  for(int y = 0; y < pic.block.dim.w; y++)
+  {
+    for(int x = 0; x < pic.block.dim.h; x++)
+    {
+      const alpha = cast(float)(x + y) / cast(float)(pic.block.dim.w);
+      pic.block(x, y) = toPixel(blend(color1, color2, alpha));
+    }
+  }
 }
 
 void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
@@ -57,14 +64,18 @@ void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
   {
     for(int x = 0; x < size.y; x++)
     {
-      const pel = Pixel(color.x, color.y, color.z, 1.0f);
       const ix = cast(int)pos.x + x;
       const iy = cast(int)pos.y + y;
 
-      if(isInside(pic.pixels, ix, iy))
-        pic.pixels.set(ix, iy, pel);
+      if(pic.block.isInside(ix, iy))
+        pic.block(ix, iy) = toPixel(color);
     }
   }
+}
+
+Pixel toPixel(Vec3 v)
+{
+  return Pixel(v.x, v.y, v.z, 1.0);
 }
 
 static this()
@@ -73,5 +84,6 @@ static this()
 
   registerRealizeFunc!(op_fill, "fill")();
   registerRealizeFunc!(op_rect, "fillrect")();
+  registerRealizeFunc!(op_gradient, "gradient")();
 }
 

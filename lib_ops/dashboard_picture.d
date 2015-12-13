@@ -14,7 +14,6 @@
  */
 
 import dashboard;
-import array2d;
 
 struct Dimension
 {
@@ -25,15 +24,17 @@ class Picture : Dashboard
 {
   this()
   {
-    pixels = new Matrix!Pixel(256, 256);
+    data.length = 256 * 256;
+    block = Block(data.ptr, Dimension(256, 256), 256);
   }
 
   Dimension getSize() const
   {
-    return Dimension(pixels.getWidth(), pixels.getHeight());
+    return block.dim;
   }
 
-  Matrix!Pixel pixels;
+  Block block;
+  Pixel[] data;
 }
 
 struct Pixel
@@ -72,6 +73,11 @@ struct Block
   Pixel opCall(int x, int y) const
   {
     return pixels[x + y * stride];
+  }
+
+  bool isInside(int x, int y) const
+  {
+    return x >= 0 && y >= 0 && x < dim.w && y < dim.h;
   }
 }
 
