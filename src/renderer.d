@@ -45,11 +45,11 @@ public:
 
   void render(int programId)
   {
-    const scroll = Vector2f(-NUM_TILE_COLS / 2, -NUM_TILE_ROWS / 2);
+    const scroll = Vec2(-NUM_TILE_COLS / 2, -NUM_TILE_ROWS / 2);
 
     for(int y = 0; y < NUM_TILE_ROWS; ++y)
       for(int x = 0; x < NUM_TILE_COLS; ++x)
-        drawTile(programId, scroll + Vector2f(x, y), m_building.tiles[x][y] % m_Texture.length);
+        drawTile(programId, scroll + Vec2(x, y), m_building.tiles[x][y] % m_Texture.length);
   }
 
   Building m_building;
@@ -94,7 +94,7 @@ private:
     return texture;
   }
 
-  void drawTile(int programId, Vector2f pos, int tile)
+  void drawTile(int programId, Vec2 pos, int tile)
   {
     const u0 = 0;
     const u1 = 1;

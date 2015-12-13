@@ -25,51 +25,6 @@ import misc;
 
 unittest
 {
-  assertEquals(Vector2f(1, 1), Vector2f(1, 1));
-  assertEquals(Vector2f(4, 6), Vector2f(1, 2) + Vector2f(3, 4));
-  assertEquals(Vector2f(-2, -3), Vector2f(1, 2) - Vector2f(3, 5));
-  assertEquals(26.0f, Vector2f(2, 3) * Vector2f(4, 6));
-}
-
-struct Vector2f
-{
-  float x, y;
-
-  Vector2f opDiv(float f) const
-  {
-    return Vector2f(x / f, y / f);
-  }
-
-  Vector2f opAddAssign(in Vector2f other)
-  {
-    x += other.x;
-    y += other.y;
-    return this;
-  }
-
-  Vector2f opAdd(in Vector2f other) const
-  {
-    return Vector2f(x + other.x, y + other.y);
-  }
-
-  Vector2f opSub(in Vector2f other) const
-  {
-    return Vector2f(x - other.x, y - other.y);
-  }
-
-  float opMul(in Vector2f other) const
-  {
-    return other.x * x + other.y * y;
-  }
-
-  Vector2f opMul(float other) const
-  {
-    return Vector2f(other * x, other * y);
-  }
-}
-
-unittest
-{
   auto a = Vec2(1, 0);
   auto b = Vec2(0, 1);
   assertEquals(Vec2(1, 1), a + b);
