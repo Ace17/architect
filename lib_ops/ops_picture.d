@@ -60,9 +60,9 @@ void op_gradient(Picture pic, Vec3 color1, Vec3 color2, Vec2 direction)
 
 void op_rect(Picture pic, Vec3 color, Vec2 pos, Vec2 size)
 {
-  for(int y = 0; y < size.x; y++)
+  for(int y = 0; y < size.y; y++)
   {
-    for(int x = 0; x < size.y; x++)
+    for(int x = 0; x < size.x; x++)
     {
       const ix = cast(int)pos.x + x;
       const iy = cast(int)pos.y + y;
