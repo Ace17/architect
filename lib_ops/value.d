@@ -44,6 +44,39 @@ auto mkVec3(float x, float y, float z)
   return Value(Vec3(x, y, z));
 }
 
+T valueAs(T)(in Value val)
+{
+  static T typeCheck(U)(in U val)
+  {
+    static if(is (T == U))
+      return val;
+    else
+      throw new Exception("Expected a " ~ T.stringof ~ ", got a " ~ U.stringof);
+  }
+
+  static T onNull(Null r)
+  {
+    return typeCheck(r);
+  }
+
+  static T onReal(Real r)
+  {
+    return typeCheck(r);
+  }
+
+  static T onVec2(Vec2 r)
+  {
+    return typeCheck(r);
+  }
+
+  static T onVec3(Vec3 r)
+  {
+    return typeCheck(r);
+  }
+
+  return val.visit!(onNull, onReal, onVec2, onVec3)();
+}
+
 float asReal(in Value val)
 {
   static float fail(T)(in T)
@@ -59,35 +92,8 @@ float asReal(in Value val)
   return val.visit!(fail!Null, onReal, fail!Vec2, fail!Vec3)();
 }
 
-Vec2 asVec2(in Value val)
-{
-  static Vec2 fail(T)(in T)
-  {
-    throw new Exception("Expected a Vec2");
-  }
-
-  static Vec2 onVec2(in Vec2 r)
-  {
-    return r;
-  }
-
-  return val.visit!(fail!Null, fail!Real, onVec2, fail!Vec3)();
-}
-
-Vec3 asVec3(in Value val)
-{
-  static Vec3 fail(T)(in T)
-  {
-    throw new Exception("Expected a Vec3");
-  }
-
-  static Vec3 onVec3(in Vec3 r)
-  {
-    return r;
-  }
-
-  return val.visit!(fail!Null, fail!Real, fail!Vec2, onVec3)();
-}
+alias asVec2 = valueAs!Vec2;
+alias asVec3 = valueAs!Vec3;
 
 Value add(Value a, Value b)
 {
