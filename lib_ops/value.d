@@ -155,7 +155,7 @@ Value mul(Value a, Value b)
 
   Value onReal(Real r)
   {
-    return mkReal(r.val + asReal(b));
+    return mkReal(r.val * asReal(b));
   }
 
   Value onVec2(Vec2 r)
