@@ -45,8 +45,8 @@ void op_rect(Building b, Vec2 pos, Vec2 size, float tile)
 
 static this()
 {
-  g_Operations["building"] = &op_building;
+  g_Operations["building"] = RealizeFunc("building", &op_building);
 
-  registerRealizeFunc!(op_rect, "rect")();
+  registerRealizeFunc!(op_rect, "building", "rect")();
 }
 

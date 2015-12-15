@@ -144,14 +144,14 @@ void op_deselect(Picture pic)
 
 static this()
 {
-  g_Operations["picture"] = &op_picture;
+  g_Operations["picture"] = RealizeFunc("pic", &op_picture);
 
-  registerRealizeFunc!(op_fill, "fill")();
-  registerRealizeFunc!(op_noise, "noise")();
-  registerRealizeFunc!(op_rect, "fillrect")();
-  registerRealizeFunc!(op_emptyrect, "emptyrect")();
-  registerRealizeFunc!(op_gradient, "gradient")();
-  registerRealizeFunc!(op_select, "select")();
-  registerRealizeFunc!(op_deselect, "deselect")();
+  registerRealizeFunc!(op_fill, "pic", "fill")();
+  registerRealizeFunc!(op_noise, "pic", "noise")();
+  registerRealizeFunc!(op_rect, "pic", "fillrect")();
+  registerRealizeFunc!(op_emptyrect, "pic", "emptyrect")();
+  registerRealizeFunc!(op_gradient, "pic", "gradient")();
+  registerRealizeFunc!(op_select, "pic", "select")();
+  registerRealizeFunc!(op_deselect, "pic", "deselect")();
 }
 

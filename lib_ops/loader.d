@@ -33,7 +33,7 @@ Dashboard runProgram(string s)
   auto state = new EditionState;
 
   foreach(op; editList.ops)
-    g_Operations[op.funcName] (state, op.args);
+    g_Operations[op.funcName].call(state, op.args);
 
   return state.board;
 }
@@ -47,7 +47,12 @@ EditList buildProgram(AstProgram prog)
 
 string[] getOperatorList()
 {
-  return g_Operations.keys.sort;
+  string[] r;
+
+  foreach(name, op; g_Operations)
+    r ~= (op.category ~ "." ~ name);
+
+  return r.sort;
 }
 
 class Env
@@ -170,10 +175,15 @@ class EditionState
   Dashboard board;
 }
 
-alias RealizeFunc = void function(EditionState state, Value[] argVals);
+struct RealizeFunc
+{
+  string category;
+  void function(EditionState state, Value[] argVals) call;
+}
+
 RealizeFunc[string] g_Operations;
 
-void registerRealizeFunc(alias F, string name)()
+void registerRealizeFunc(alias F, string cat, string name)()
 {
   static void realize_func(EditionState state, Value[] argVals)
   {
@@ -218,7 +228,7 @@ void registerRealizeFunc(alias F, string name)()
     F(myArgs);
   }
 
-  g_Operations[name] = &realize_func;
+  g_Operations[name] = RealizeFunc(cat, &realize_func);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -87,12 +87,12 @@ float[] sound_window(Sound sound, float t, float duration)
 
 static this()
 {
-  g_Operations["sound"] = &op_sound;
+  g_Operations["sound"] = RealizeFunc("sound", &op_sound);
 
-  registerRealizeFunc!(op_sine, "sine")();
-  registerRealizeFunc!(op_square, "square")();
-  registerRealizeFunc!(op_amplify, "amplify")();
-  registerRealizeFunc!(op_envelope, "envelope")();
-  registerRealizeFunc!(op_delay, "delay")();
+  registerRealizeFunc!(op_sine, "sound", "sine")();
+  registerRealizeFunc!(op_square, "sound", "square")();
+  registerRealizeFunc!(op_amplify, "sound", "amplify")();
+  registerRealizeFunc!(op_envelope, "sound", "envelope")();
+  registerRealizeFunc!(op_delay, "sound", "delay")();
 }
 
