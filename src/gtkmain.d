@@ -87,9 +87,9 @@ public:
     hbox.setPosition(200);
 
     auto vbox = new VBox(false, 10);
-    vbox.packStart(createFileMenu(), false, false, 0);
     vbox.packStart(createStatusBar(), false, false, 0);
-    vbox.packEnd(hbox, true, true, 0);
+    vbox.packStart(hbox, true, true, 0);
+    vbox.packEnd(createStatusBar(), false, false, 0);
 
     addOnKeyPress(&onKeyDown);
 
@@ -306,13 +306,6 @@ string getSelectedText(TextBuffer buff)
     return "";
 
   return buff.getText(start, end, true);
-}
-
-Widget createFileMenu()
-{
-  auto r = new TextView;
-  r.setSizeRequest(0, 100);
-  return r;
 }
 
 string getNumberAtCursor(TextBuffer buff)

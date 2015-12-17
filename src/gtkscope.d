@@ -40,14 +40,11 @@ interface IDashboardSource
 
 Widget createMonitor(IDashboardSource pinFinder)
 {
-  auto status = new Statusbar;
-  status.modifyBg(GtkStateType.NORMAL, COLOR_LIGHT_GRAY);
-  auto glmon = new MonitorArea(pinFinder, status);
-  auto hpane = new VPaned(status, glmon);
+  auto glmon = new MonitorArea(pinFinder);
 
   glmon.m_renderers = g_renderers;
 
-  return hpane;
+  return glmon;
 }
 
 static Color COLOR_LIGHT_RED;
@@ -57,12 +54,10 @@ private:
 class MonitorArea : GLArea
 {
 public:
-  this(IDashboardSource pinFinder, Statusbar bar)
+  this(IDashboardSource pinFinder)
   {
     setAutoRender(true);
     m_pinMonitor = pinFinder;
-    m_bar = bar;
-    m_bar.push(0, "");
 
     m_timer = new Timeout(50, &refreshView);
 
@@ -105,16 +100,6 @@ private:
 
   bool render(GLContext, GLArea a)
   {
-    {
-      auto msg = format("Monitoring: '%s'", m_pinMonitor.getName());
-
-      if(m_frozen)
-        msg ~= " (frozen)";
-
-      m_bar.pop(1);
-      m_bar.push(1, msg);
-    }
-
     makeCurrent();
 
     const c = m_frozen ? 0.9 : 0.5;
@@ -211,7 +196,6 @@ private:
   }
 
   IDashboardSource m_pinMonitor;
-  Statusbar m_bar;
   IRenderer[] m_renderers;
   int m_currRenderer;
   Timeout m_timer;
