@@ -1,6 +1,6 @@
 /**
  * @file loader.d
- * @brief Construction of a graph from an AST
+ * @brief Evaluation of an AST to produce an edit list
  * @author Sebastien Alaiwan
  * @date 2015-11-07
  */
@@ -14,7 +14,6 @@
  */
 
 import std.string;
-import std.traits;
 
 import misc;
 
@@ -25,26 +24,7 @@ import editlist;
 import evaluator;
 
 import dashboard;
-
-Dashboard runProgram(string s)
-{
-  auto ast = parseProgram(s);
-  auto editList = buildProgram(ast);
-
-  auto state = new EditionState;
-
-  foreach(op; editList.ops)
-    g_Operations[op.funcName].call(state, op.args);
-
-  return state.board;
-}
-
-EditList buildProgram(AstProgram prog)
-{
-  auto editList = new EditList;
-  realize(editList, prog, "root", []);
-  return editList;
-}
+import execute;
 
 string[] getOperatorList()
 {
@@ -54,6 +34,20 @@ string[] getOperatorList()
     r ~= (op.category ~ "." ~ name);
 
   return r.sort;
+}
+
+Dashboard runProgram(string s)
+{
+  auto ast = parseProgram(s);
+  auto editList = buildProgram(ast);
+  return executeEditList(editList);
+}
+
+EditList buildProgram(AstProgram prog)
+{
+  auto editList = new EditList;
+  realize(editList, prog, "root", []);
+  return editList;
 }
 
 void realize(EditList editList, AstProgram prog, string name, Value[] args)
@@ -107,69 +101,6 @@ void realize_user(EditList editList, AstProgram prog, string name, Value[] argVa
 
     realize(editList, prog, funcName, argVal);
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-class EditionState
-{
-  Dashboard board;
-}
-
-struct RealizeFunc
-{
-  string category;
-  void function(EditionState state, Value[] argVals) call;
-}
-
-RealizeFunc[string] g_Operations;
-
-void registerRealizeFunc(alias F, string cat, string name)()
-{
-  static void realize_func(EditionState state, Value[] argVals)
-  {
-    if(!state.board)
-      throw new Exception("please create a dashboard first");
-
-    alias MyArgs = ParameterTypeTuple!F;
-    const N = MyArgs.length - 1;
-
-    if(N != argVals.length)
-    {
-      const msg = format("invalid number of arguments for '%s' (%s instead of %s)", name, argVals.length, N);
-      throw new Exception(msg);
-    }
-
-    MyArgs myArgs;
-
-    myArgs[0] = cast(MyArgs[0])state.board;
-
-    if(!myArgs[0])
-    {
-      const msg = format("invalid dashboard type, required: %s", MyArgs[0].stringof);
-      throw new Exception(msg);
-    }
-
-    foreach(i, ref arg; myArgs[1 .. $])
-    {
-      static if(is (typeof(arg) == Vec2))
-      {
-        arg = asVec2(argVals[i]);
-      }
-      else static if(is (typeof(arg) == Vec3))
-      {
-        arg = asVec3(argVals[i]);
-      }
-      else
-      {
-        arg = asReal(argVals[i]);
-      }
-    }
-
-    F(myArgs);
-  }
-
-  g_Operations[name] = RealizeFunc(cat, &realize_func);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

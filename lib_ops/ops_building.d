@@ -16,7 +16,7 @@
 import std.algorithm;
 import std.math;
 
-import loader;
+import execute;
 import value;
 import dashboard_building;
 
@@ -47,6 +47,6 @@ static this()
 {
   g_Operations["building"] = RealizeFunc("building", &op_building);
 
-  registerRealizeFunc!(op_rect, "building", "rect")();
+  registerOperator!(op_rect, "building", "rect")();
 }
 

@@ -19,7 +19,7 @@ import std.random;
 
 import misc;
 
-import loader;
+import execute;
 import value;
 import dashboard_picture;
 
@@ -146,12 +146,12 @@ static this()
 {
   g_Operations["picture"] = RealizeFunc("pic", &op_picture);
 
-  registerRealizeFunc!(op_fill, "pic", "fill")();
-  registerRealizeFunc!(op_noise, "pic", "noise")();
-  registerRealizeFunc!(op_rect, "pic", "fillrect")();
-  registerRealizeFunc!(op_emptyrect, "pic", "emptyrect")();
-  registerRealizeFunc!(op_gradient, "pic", "gradient")();
-  registerRealizeFunc!(op_select, "pic", "select")();
-  registerRealizeFunc!(op_deselect, "pic", "deselect")();
+  registerOperator!(op_fill, "pic", "fill")();
+  registerOperator!(op_noise, "pic", "noise")();
+  registerOperator!(op_rect, "pic", "fillrect")();
+  registerOperator!(op_emptyrect, "pic", "emptyrect")();
+  registerOperator!(op_gradient, "pic", "gradient")();
+  registerOperator!(op_select, "pic", "select")();
+  registerOperator!(op_deselect, "pic", "deselect")();
 }
 

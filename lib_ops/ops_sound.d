@@ -17,7 +17,7 @@ import std.math;
 import std.algorithm;
 import misc: clamp;
 
-import loader;
+import execute;
 import value;
 import dashboard_sound;
 
@@ -117,12 +117,12 @@ static this()
 {
   g_Operations["sound"] = RealizeFunc("sound", &op_sound);
 
-  registerRealizeFunc!(op_select, "sound", "push")();
-  registerRealizeFunc!(op_deselect, "sound", "pop")();
-  registerRealizeFunc!(op_sine, "sound", "sine")();
-  registerRealizeFunc!(op_square, "sound", "square")();
-  registerRealizeFunc!(op_amplify, "sound", "amplify")();
-  registerRealizeFunc!(op_envelope, "sound", "envelope")();
-  registerRealizeFunc!(op_delay, "sound", "delay")();
+  registerOperator!(op_select, "sound", "push")();
+  registerOperator!(op_deselect, "sound", "pop")();
+  registerOperator!(op_sine, "sound", "sine")();
+  registerOperator!(op_square, "sound", "square")();
+  registerOperator!(op_amplify, "sound", "amplify")();
+  registerOperator!(op_envelope, "sound", "envelope")();
+  registerOperator!(op_delay, "sound", "delay")();
 }
 

@@ -11,6 +11,7 @@ srcs:=\
 	$(THIS)/dashboard_sound.d\
 	$(THIS)/editlist.d\
 	$(THIS)/evaluator.d\
+	$(THIS)/execute.d\
 	$(THIS)/lexer.d\
 	$(THIS)/loader.d\
 	$(THIS)/ops_building.d\
