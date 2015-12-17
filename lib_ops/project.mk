@@ -10,6 +10,7 @@ srcs:=\
 	$(THIS)/dashboard_picture.d\
 	$(THIS)/dashboard_sound.d\
 	$(THIS)/editlist.d\
+	$(THIS)/evaluator.d\
 	$(THIS)/lexer.d\
 	$(THIS)/loader.d\
 	$(THIS)/ops_building.d\

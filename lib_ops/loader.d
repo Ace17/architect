@@ -22,6 +22,7 @@ import ast;
 import value;
 import parser;
 import editlist;
+import evaluator;
 
 import dashboard;
 
@@ -53,11 +54,6 @@ string[] getOperatorList()
     r ~= (op.category ~ "." ~ name);
 
   return r.sort;
-}
-
-class Env
-{
-  Value[string] values;
 }
 
 void realize(EditList editList, AstProgram prog, string name, Value[] args)
@@ -111,61 +107,6 @@ void realize_user(EditList editList, AstProgram prog, string name, Value[] argVa
 
     realize(editList, prog, funcName, argVal);
   }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-Value eval(AstExpr expr, Env env)
-{
-  Value evalNumber(AstNumber n)
-  {
-    return mkReal(n.value);
-  }
-
-  Value evalBinOp(AstBinOp binop)
-  {
-    const op1 = eval(binop.children[0], env);
-    const op2 = eval(binop.children[1], env);
-    final switch(binop.type)
-    {
-    case BinOp.Add: return add(op1, op2);
-    case BinOp.Sub: return sub(op1, op2);
-    case BinOp.Mul: return mul(op1, op2);
-    }
-  }
-
-  Value evalIdentifier(AstIdentifier id)
-  {
-    if(id.name !in env.values)
-      throw new Exception(format("Undeclared identifier '%s'", id.name));
-
-    return env.values[id.name];
-  }
-
-  Value evalFunctionCall(AstFunctionCall call)
-  {
-    auto argVals = mapArray!eval(call.args, env);
-
-    if(call.func !in g_Builtins)
-      throw new Exception(format("Unknown function '%s'", call.func));
-
-    return g_Builtins[call.func] (argVals);
-  }
-
-  return expr.visitDg(&evalIdentifier, &evalNumber, &evalFunctionCall, &evalBinOp);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// builtins
-
-Value builtin_vec2(float x, float y)
-{
-  return mkVec2(x, y);
-}
-
-Value builtin_vec3(float x, float y, float z)
-{
-  return mkVec3(x, y, z);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,32 +173,16 @@ void registerRealizeFunc(alias F, string cat, string name)()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// builtins
 
-alias BuiltinFunc = Value function(Value[] argVals);
-BuiltinFunc[string] g_Builtins;
-
-void registerBuiltinFunc(alias F, string name)()
+Value builtin_vec2(float x, float y)
 {
-  static Value wrappedFunction(Value[] argVals)
-  {
-    alias MyArgs = ParameterTypeTuple!F;
-    const N = MyArgs.length;
+  return mkVec2(x, y);
+}
 
-    if(N != argVals.length)
-    {
-      const msg = format("invalid number of arguments for '%s' (%s instead of %s)", name, argVals.length, N);
-      throw new Exception(msg);
-    }
-
-    MyArgs myArgs;
-
-    foreach(i, ref arg; myArgs)
-      arg = asReal(argVals[i]);
-
-    return F(myArgs);
-  }
-
-  g_Builtins[name] = &wrappedFunction;
+Value builtin_vec3(float x, float y, float z)
+{
+  return mkVec3(x, y, z);
 }
 
 static this()
