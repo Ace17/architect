@@ -21,6 +21,8 @@ import loader;
 import value;
 import dashboard_sound;
 
+enum SAMPLE_PERIOD = 1.0 / SAMPLE_RATE;
+
 void op_sound(EditionState state, Value[] values)
 {
   if(values.length != 1)
@@ -31,36 +33,44 @@ void op_sound(EditionState state, Value[] values)
   sound.samples.length = max(SAMPLE_RATE, cast(int)(SAMPLE_RATE * length));
   sound.samples[] = 0;
   state.board = sound;
+
+  sound.blocks ~= Block(sound.samples);
 }
 
-void op_sine(Sound sound, float freq, float t, float duration)
+void op_sine(Sound sound, float freq)
 {
-  auto wnd = sound_window(sound, t, duration);
+  float phase = 0;
 
-  foreach(i, ref s; wnd)
-    s = sin(i * freq * (2 * PI) / SAMPLE_RATE);
+  foreach(i, ref s; sound.currBlock.samples)
+  {
+    s = sin(phase);
+    phase += freq * (2 * PI) * SAMPLE_PERIOD;
+
+    if(phase > 2 * PI)
+      phase -= 2 * PI;
+  }
 }
 
 void op_square(Sound sound, float freq)
 {
-  foreach(i, ref s; sound.samples)
-    s = dsp_square(i * freq * (2 * PI) / SAMPLE_RATE);
+  foreach(i, ref s; sound.currBlock.samples)
+    s = dsp_square(i * freq * (2 * PI) * SAMPLE_PERIOD);
 }
 
-void op_envelope(Sound sound, float t, float duration)
+void op_envelope(Sound sound)
 {
-  auto wnd = sound_window(sound, t, duration);
+  const invN = 1.0 / sound.currBlock.samples.length;
 
-  foreach(i, ref s; wnd)
+  foreach(i, ref s; sound.currBlock.samples)
   {
-    float f = 1 - cast(float)i / cast(float)wnd.length;
-    s *= f * f * f;
+    float f = 1 - cast(float)i * invN;
+    s *= f;
   }
 }
 
 void op_amplify(Sound sound, float amp)
 {
-  foreach(i, ref s; sound.samples)
+  foreach(i, ref s; sound.currBlock.samples)
     s *= amp;
 }
 
@@ -69,7 +79,32 @@ void op_delay(Sound sound)
   const duration = SAMPLE_RATE;
 
   foreach(i, ref s; sound.samples[duration .. $])
-    s += sound.samples[i] * 0.3;
+  {
+    float r = sound.samples[i] * 0.3;
+
+    if(abs(r) < 0.01)
+      r = 0;
+
+    s += r;
+  }
+}
+
+void op_select(Sound sound, float time, float duration)
+{
+  auto samples = sound.currBlock().samples;
+
+  const N1 = clamp(cast(int)(time * SAMPLE_RATE), 0, samples.length - 1);
+  const N2 = clamp(cast(int)((time + duration) * SAMPLE_RATE), 0, samples.length - 1);
+
+  sound.blocks ~= Block(samples[N1 .. N2]);
+}
+
+void op_deselect(Sound sound)
+{
+  if(sound.blocks.length <= 1)
+    throw new Exception("Nothing to deselect");
+
+  sound.blocks.length--;
 }
 
 float dsp_square(float f)
@@ -78,17 +113,12 @@ float dsp_square(float f)
   return phase > PI;
 }
 
-float[] sound_window(Sound sound, float t, float duration)
-{
-  const left = clamp(cast(int)(t * SAMPLE_RATE), 0, sound.samples.length);
-  const right = clamp(cast(int)((t + duration) * SAMPLE_RATE), 0, sound.samples.length);
-  return sound.samples[left .. right];
-}
-
 static this()
 {
   g_Operations["sound"] = RealizeFunc("sound", &op_sound);
 
+  registerRealizeFunc!(op_select, "sound", "push")();
+  registerRealizeFunc!(op_deselect, "sound", "pop")();
   registerRealizeFunc!(op_sine, "sound", "sine")();
   registerRealizeFunc!(op_square, "sound", "square")();
   registerRealizeFunc!(op_amplify, "sound", "amplify")();

@@ -8,6 +8,17 @@ class Sound : Dashboard
     samples[] = 0;
   }
 
+  Block currBlock()
+  {
+    return blocks[$ - 1];
+  }
+
+  Block[] blocks;
+  float[] samples;
+}
+
+struct Block
+{
   float[] samples;
 }
 
