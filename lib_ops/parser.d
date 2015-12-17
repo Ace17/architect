@@ -196,6 +196,13 @@ class Parser
       auto num = expect(s, TK.Number);
       return AstExpr(AstNumber(to!float (num)));
     }
+    else if(frontType(s) == TK.LeftPar)
+    {
+      expect(s, TK.LeftPar);
+      auto e = expression();
+      expect(s, TK.RightPar);
+      return e;
+    }
     else
     {
       throw new Exception("expected an expression");
