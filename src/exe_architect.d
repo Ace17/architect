@@ -1,6 +1,7 @@
 import std.array;
 import std.file;
 import std.stdio;
+import std.getopt;
 
 import misc;
 
@@ -14,15 +15,29 @@ int main(string[] args)
 {
   try
   {
+    bool mustDumpEditList;
+    bool mustDumpAst;
+
+    getopt(
+      args,
+      "dump", &mustDumpEditList,
+      "ast", &mustDumpAst,
+      );
+
     if(args.length <= 1)
-      throw new Exception("Bad usage");
+      throw new Exception("One input file must be specified");
 
     auto text = loadTextFile(args[1]);
     auto ast = parseProgram(text);
-    dumpAst(ast, &stdout);
+
+    if(mustDumpAst)
+      dumpAst(ast, &stdout);
 
     auto editList = buildProgram(ast);
-    dumpEditList(editList);
+
+    if(mustDumpEditList)
+      dumpEditList(editList);
+
     return 0;
   }
   catch(Exception e)
@@ -34,9 +49,6 @@ int main(string[] args)
 
 void dumpEditList(EditList editList)
 {
-  writefln("-------------");
-  writefln("Edit list");
-
   foreach(op; editList.ops)
   {
     auto args = mapArray!valueToString(op.args);
