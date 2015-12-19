@@ -1,0 +1,34 @@
+root()
+{
+  picture(Vec2(256, 256));
+  let c1 = Vec3(-0.1, 0.2, 0.7);
+  let c2 = Vec3(0.5, 0.3, 0.5);
+  gradient(c1, c2, Vec2(1, 1));
+  noise(Vec3(0.2, 0.2, 0.2));
+  repeat8(drawStars, 0);
+}
+
+drawStars(j, arg)
+{
+  repeat8(drawStar, j);
+}
+
+drawStar(i, j)
+{
+  let c = Vec2(128, 128);
+  let pos = c + R(Vec2(16*i, 0), j*0.8 + i * 0.1 * 1.7);
+  let color = Vec3(0.1, (10-i)*0.1, (i+5)*0.1);
+  fillrect(color, pos, Vec2(5, 5));
+}
+
+repeat8(f, arg)
+{
+  f(0, arg);
+  f(1, arg);
+  f(2, arg);
+  f(3, arg);
+  f(4, arg);
+  f(5, arg);
+  f(6, arg);
+  f(7, arg);
+}

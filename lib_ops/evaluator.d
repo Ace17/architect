@@ -87,7 +87,12 @@ void registerBuiltinFunc(alias F, string name)()
     MyArgs myArgs;
 
     foreach(i, ref arg; myArgs)
-      arg = asReal(argVals[i]);
+    {
+      static if(is(MyArgs[i] == Vec2))
+        arg = asVec2(argVals[i]);
+      else
+        arg = asReal(argVals[i]);
+    }
 
     return F(myArgs);
   }

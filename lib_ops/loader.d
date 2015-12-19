@@ -14,6 +14,7 @@
  */
 
 import std.string;
+import std.math;
 
 import misc;
 
@@ -111,6 +112,13 @@ Value builtin_vec2(float x, float y)
   return mkVec2(x, y);
 }
 
+Value builtin_rotate(Vec2 v, float angle)
+{
+  const x = sin(angle) * v.x + cos(angle) * v.y;
+  const y = cos(angle) * v.x - sin(angle) * v.y;
+  return mkVec2(x, y);
+}
+
 Value builtin_vec3(float x, float y, float z)
 {
   return mkVec3(x, y, z);
@@ -120,5 +128,6 @@ static this()
 {
   registerBuiltinFunc!(builtin_vec2, "Vec2")();
   registerBuiltinFunc!(builtin_vec3, "Vec3")();
+  registerBuiltinFunc!(builtin_rotate, "R")();
 }
 
