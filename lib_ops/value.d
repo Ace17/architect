@@ -14,6 +14,7 @@
  */
 
 import std.string;
+import std.math;
 import algebraic: Either;
 import misc;
 public import vect;
@@ -169,6 +170,36 @@ Value mul(Value a, Value b)
   }
 
   return a.visitDg!Value(&fail!Null, &onReal, &onVec2, &onVec3, &fail!Identifier);
+}
+
+Value div(Value a, Value b)
+{
+  Value fail(T)(T)
+  {
+    throw new Exception(format("Can't div to this type: %s", T.stringof));
+  }
+
+  Value onReal(Real r)
+  {
+    return mkReal(r.val / asReal(b));
+  }
+
+  return a.visitDg!Value(&fail!Null, &onReal, &fail!Vec2, &fail!Vec3, &fail!Identifier);
+}
+
+Value mod(Value a, Value b)
+{
+  Value fail(T)(T)
+  {
+    throw new Exception(format("Can't div to this type: %s", T.stringof));
+  }
+
+  Value onReal(Real r)
+  {
+    return mkReal(std.math.fmod(r.val, asReal(b)));
+  }
+
+  return a.visitDg!Value(&fail!Null, &onReal, &fail!Vec2, &fail!Vec3, &fail!Identifier);
 }
 
 string toString(Value a)

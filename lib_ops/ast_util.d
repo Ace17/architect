@@ -77,6 +77,8 @@ string toString(BinOp op)
   case BinOp.Add: return "+";
   case BinOp.Sub: return "-";
   case BinOp.Mul: return "*";
+  case BinOp.Div: return "/";
+  case BinOp.Mod: return "%";
   }
 }
 

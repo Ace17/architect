@@ -65,6 +65,8 @@ enum BinOp
   Add,
   Sub,
   Mul,
+  Div,
+  Mod,
 }
 
 struct AstNumber

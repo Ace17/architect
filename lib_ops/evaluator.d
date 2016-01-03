@@ -42,6 +42,8 @@ Value eval(AstExpr expr, Env env)
     case BinOp.Add: return add(op1, op2);
     case BinOp.Sub: return sub(op1, op2);
     case BinOp.Mul: return mul(op1, op2);
+    case BinOp.Div: return div(op1, op2);
+    case BinOp.Mod: return mod(op1, op2);
     }
   }
 
@@ -88,7 +90,7 @@ void registerBuiltinFunc(alias F, string name)()
 
     foreach(i, ref arg; myArgs)
     {
-      static if(is(MyArgs[i] == Vec2))
+      static if(is (MyArgs[i] == Vec2))
         arg = asVec2(argVals[i]);
       else
         arg = asReal(argVals[i]);

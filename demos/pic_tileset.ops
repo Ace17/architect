@@ -1,0 +1,48 @@
+root()
+{
+  picture(Vec2(32*8, 32*8));
+  repeat16(0, drawTile, 0);
+}
+
+drawTile(i, arg)
+{
+  let TS = 32;
+  let x = (i%8) * TS;
+  let y = (floor(i/8)) * TS;
+  select(Vec2(x, y), Vec2(TS, TS));
+  
+  background(i);
+  
+  fillrect(Vec3(0, 0.7, 1), Vec2(31, 0), Vec2(1, 31));
+  fillrect(Vec3(0, 0.7, 1), Vec2(0, 31), Vec2(32, 1));
+  fillrect(Vec3(0, 0.5, 1), Vec2(0, 0), Vec2(1, 31));
+  fillrect(Vec3(0, 0.5, 1), Vec2(0, 0), Vec2(31, 1));
+  
+  deselect();
+}
+
+background(i)
+{
+  let c1 = Vec3(i*0, i*0.04, 0.2 - i * 0.1);
+  let c2 = Vec3(i*0.04, 0.4 + i*0.03, 0.5+i*0.1);
+  gradient(c1, c2, Vec2(1, 1));
+  noise(Vec3(0.1, 0.1, 0.1));
+}
+
+repeat16(base, f, arg)
+{
+  repeat8(base + 0, f, arg);
+  repeat8(base + 8, f, arg);
+}
+
+repeat8(base, f, arg)
+{
+  f(base + 0, arg);
+  f(base + 1, arg);
+  f(base + 2, arg);
+  f(base + 3, arg);
+  f(base + 4, arg);
+  f(base + 5, arg);
+  f(base + 6, arg);
+  f(base + 7, arg);
+}

@@ -119,6 +119,11 @@ Value builtin_rotate(Vec2 v, float angle)
   return mkVec2(x, y);
 }
 
+Value builtin_floor(float val)
+{
+  return mkReal(floor(val));
+}
+
 Value builtin_vec3(float x, float y, float z)
 {
   return mkVec3(x, y, z);
@@ -126,6 +131,7 @@ Value builtin_vec3(float x, float y, float z)
 
 static this()
 {
+  registerBuiltinFunc!(builtin_floor, "floor")();
   registerBuiltinFunc!(builtin_vec2, "Vec2")();
   registerBuiltinFunc!(builtin_vec3, "Vec3")();
   registerBuiltinFunc!(builtin_rotate, "R")();

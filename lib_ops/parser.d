@@ -152,6 +152,10 @@ class Parser
 
       if(frontType(s) == TK.Mul)
         type = BinOp.Mul;
+      else if(frontType(s) == TK.Div)
+        type = BinOp.Div;
+      else if(frontType(s) == TK.Mod)
+        type = BinOp.Mod;
       else
         break;
 
