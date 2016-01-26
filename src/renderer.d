@@ -27,15 +27,15 @@ import vect;
 
 import misc;
 
+const VERTEX_SIZE = 8;
+
 class MeshRenderer : IRenderer
 {
 public:
   void createBuffers()
   {
     glGenBuffers(1, &m_Vbo);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_Texture = createBasicTexture(1234);
   }
 
   bool update(Dashboard p)
@@ -50,33 +50,36 @@ public:
 
     foreach(face; mesh.faces)
     {
+      auto normal = Vec3(1, 0, 0);
       foreach(vid; face)
       {
         auto vertex = mesh.vertices[vid];
-        lines ~=[vertex.x, vertex.y, vertex.z, 0, 0];
+        lines ~=[vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, 0, 0];
         m_length++;
       }
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
-
     glBufferData(GL_ARRAY_BUFFER, lines.length * float.sizeof, lines.ptr, GL_STATIC_DRAW);
+
     return true;
   }
 
   void render(int programId)
   {
+    glBindTexture(GL_TEXTURE_2D, m_Texture);
+
     const positionLoc = glGetAttribLocation(programId, "a_position");
     glEnableVertexAttribArray(positionLoc);
-    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * GLfloat.sizeof, null);
+    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE * GLfloat.sizeof, null);
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     const texCoordLoc = glGetAttribLocation(programId, "a_texCoord");
     glEnableVertexAttribArray(texCoordLoc);
-    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, 5 * GLfloat.sizeof, cast(GLvoid*)(3 * GLfloat.sizeof));
+    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof));
 
-    glDisable(GL_TEXTURE_2D);
     glDrawArrays(GL_TRIANGLES, 0, m_length);
+    glBindTexture(GL_TEXTURE_2D, 0);
   }
 
 private:
@@ -92,7 +95,7 @@ public:
     glGenBuffers(1, &m_Vbo);
 
     foreach(int i, ref texture; m_Texture)
-      texture = createTile(i);
+      texture = createBasicTexture(i);
   }
 
   bool update(Dashboard p)
@@ -113,44 +116,6 @@ public:
   TileMap m_building;
 
 private:
-  int createTile(int seed)
-  {
-    uint texture;
-    glGenTextures(1, &texture);
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    const W = 32;
-    const H = 32;
-
-    ubyte[H * W * 4] picBuffer;
-
-    for(int y = 0; y < H; ++y)
-      for(int x = 0; x < W; ++x)
-      {
-        const val = 0xC0;
-        bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
-        const r = border ? 0x00 : 0x80 * max(1, seed * 3);
-        const g = border ? 0x00 : 0x80 * max(1, seed * 3);
-        const b = border ? 0x00 : 0xC0 * max(1, seed * 3);
-        const a = 0xFF;
-        picBuffer[(x + y * W) * 4 + 0] = cast(ubyte)r;
-        picBuffer[(x + y * W) * 4 + 1] = cast(ubyte)g;
-        picBuffer[(x + y * W) * 4 + 2] = cast(ubyte)b;
-        picBuffer[(x + y * W) * 4 + 3] = cast(ubyte)a;
-      }
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGBA,
-                 W, H,
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 picBuffer.ptr);
-    return texture;
-  }
 
   void drawTile(int programId, Vec2 pos, int tile)
   {
@@ -161,13 +126,13 @@ private:
 
     immutable GLfloat[] lines =
     [
-      pos.x + 0, pos.y + 0, 0, u0, v0,
-      pos.x + 1, pos.y + 0, 0, u1, v0,
-      pos.x + 1, pos.y + 1, 0, u1, v1,
+      pos.x + 0, pos.y + 0, 0, 0, 0, 1, u0, v0,
+      pos.x + 1, pos.y + 0, 0, 0, 0, 1, u1, v0,
+      pos.x + 1, pos.y + 1, 0, 0, 0, 1, u1, v1,
 
-      pos.x + 1, pos.y + 1, 0, u1, v1,
-      pos.x + 0, pos.y + 1, 0, u0, v1,
-      pos.x + 0, pos.y + 0, 0, u0, v0,
+      pos.x + 1, pos.y + 1, 0, 0, 0, 1, u1, v1,
+      pos.x + 0, pos.y + 1, 0, 0, 0, 1, u0, v1,
+      pos.x + 0, pos.y + 0, 0, 0, 0, 1, u0, v0,
     ];
 
     const positionLoc = glGetAttribLocation(programId, "a_position");
@@ -180,18 +145,16 @@ private:
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
-
     glBufferData(GL_ARRAY_BUFFER, lines.length * float.sizeof, lines.ptr, GL_STATIC_DRAW);
-    // glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, null);
 
     glEnableVertexAttribArray(positionLoc);
-    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * GLfloat.sizeof, null);
+    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE * GLfloat.sizeof, null);
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     glEnableVertexAttribArray(texCoordLoc);
-    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, 5 * GLfloat.sizeof, cast(GLvoid*)(3 * GLfloat.sizeof));
+    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof));
 
-    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / 5);
+    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
@@ -257,15 +220,19 @@ public:
 
   void render(int programId)
   {
+    const nx = 0.0f;
+    const ny = 0.0f;
+    const nz = 1.0f;
+
     immutable GLfloat[] lines =
     [
-      -1, -1, 0, 0, 0,
-      +1, -1, 0, 1, 0,
-      +1, +1, 0, 1, 1,
-
-      +1, +1, 0, 1, 1,
-      -1, +1, 0, 0, 1,
-      -1, -1, 0, 0, 0,
+      -1, -1, 0, nx, ny, nz, 0, 0,
+      +1, -1, 0, nx, ny, nz, 1, 0,
+      +1, +1, 0, nx, ny, nz, 1, 1,
+                             
+      +1, +1, 0, nx, ny, nz, 1, 1,
+      -1, +1, 0, nx, ny, nz, 0, 1,
+      -1, -1, 0, nx, ny, nz, 0, 0,
     ];
 
     const positionLoc = glGetAttribLocation(programId, "a_position");
@@ -281,13 +248,13 @@ public:
     // glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, null);
 
     (glEnableVertexAttribArray(positionLoc));
-    (glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * GLfloat.sizeof, null));
+    (glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE * GLfloat.sizeof, null));
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     (glEnableVertexAttribArray(texCoordLoc));
-    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, 5 * GLfloat.sizeof, cast(GLvoid*)(3 * GLfloat.sizeof)));
+    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof)));
 
-    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / 5);
+    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
@@ -370,15 +337,19 @@ public:
 
   void render(int programId)
   {
+    const nx = 0.0f;
+    const ny = 0.0f;
+    const nz = 1.0f;
     immutable GLfloat[] lines =
     [
-      -1, -1, 0, 0, 0,
-      +1, -1, 0, 1, 0,
-      +1, +1, 0, 1, 1,
+    // pos, normal, uv
+      -1, -1, 0, nx, ny, nz, 0, 0,
+      +1, -1, 0, nx, ny, nz, 1, 0,
+      +1, +1, 0, nx, ny, nz, 1, 1,
 
-      +1, +1, 0, 1, 1,
-      -1, +1, 0, 0, 1,
-      -1, -1, 0, 0, 0,
+      +1, +1, 0, nx, ny, nz, 1, 1,
+      -1, +1, 0, nx, ny, nz, 0, 1,
+      -1, -1, 0, nx, ny, nz, 0, 0,
     ];
 
     const positionLoc = glGetAttribLocation(programId, "a_position");
@@ -394,13 +365,13 @@ public:
     // glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, null);
 
     (glEnableVertexAttribArray(positionLoc));
-    (glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * GLfloat.sizeof, null));
+    (glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, VERTEX_SIZE * GLfloat.sizeof, null));
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     (glEnableVertexAttribArray(texCoordLoc));
-    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, 5 * GLfloat.sizeof, cast(GLvoid*)(3 * GLfloat.sizeof)));
+    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof)));
 
-    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / 5);
+    glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 
@@ -455,3 +426,45 @@ static this()
   g_renderers ~= new DefaultRenderer;
 }
 
+private:
+
+int createBasicTexture(int seed)
+{
+  uint texture;
+  glGenTextures(1, &texture);
+
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  const W = 32;
+  const H = 32;
+
+  ubyte[H * W * 4] picBuffer;
+
+  for(int y = 0; y < H; ++y)
+    for(int x = 0; x < W; ++x)
+    {
+      const val = 0xC0;
+      bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
+      if(seed == 1234)
+        border = false;
+      const r = border ? 0x00 : 0x80 * max(1, seed * 3);
+      const g = border ? 0x00 : 0x80 * max(1, seed * 3);
+      const b = border ? 0x00 : 0xC0 * max(1, seed * 3);
+      const a = 0xFF;
+      picBuffer[(x + y * W) * 4 + 0] = cast(ubyte)r;
+      picBuffer[(x + y * W) * 4 + 1] = cast(ubyte)g;
+      picBuffer[(x + y * W) * 4 + 2] = cast(ubyte)b;
+      picBuffer[(x + y * W) * 4 + 3] = cast(ubyte)a;
+    }
+
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexImage2D(GL_TEXTURE_2D,
+      0,
+      GL_RGBA,
+      W, H,
+      0,
+      GL_RGBA,
+      GL_UNSIGNED_BYTE,
+      picBuffer.ptr);
+  return texture;
+}
