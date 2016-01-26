@@ -18,6 +18,7 @@ import std.math;
 import gdk.Color;
 import gdk.Cairo;
 import gdk.GLContext;
+import gdk.DragContext;
 
 import gtk.DrawingArea;
 import gtk.Statusbar;
@@ -61,10 +62,9 @@ public:
 
     m_timer = new Timeout(50, &refreshView);
 
-    addEvents(GdkEventMask.BUTTON_PRESS_MASK);
-    addEvents(GdkEventMask.SCROLL_MASK);
-
     addOnButtonPress(&onButtonPress);
+    addOnButtonRelease(&onButtonRelease);
+    addOnMotionNotify(&onMotionNotify);
     addOnScroll(&onScroll);
 
     addOnRender(&render);
@@ -102,12 +102,17 @@ private:
   {
     makeCurrent();
 
-    const c = m_frozen ? 0.9 : 0.5;
+    const c = 0.5;
     glClearColor(c, c, c, 1);
     glClear(GL_COLOR_BUFFER_BIT);
 
     {
-      const mvp = scaleMatrix(exp(m_zoom * 0.1));
+      const rotationX = makeRotationMatrixY(m_rotationX + m_dragRotationX);
+      const rotationY = makeRotationMatrixX(m_rotationY + m_dragRotationY);
+      auto mvp = scaleMatrix(exp(m_zoom * 0.1));
+
+      mvp = multMatrix(mvp, rotationX);
+      mvp = multMatrix(mvp, rotationY);
 
       glUseProgram(m_Program);
 
@@ -127,19 +132,6 @@ private:
     glFlush();
 
     return true;
-  }
-
-  static float[16] scaleMatrix(float s)
-  {
-    float mat[4 * 4];
-
-    for(int x = 0; x < 4; ++x)
-      for(int y = 0; y < 4; ++y)
-        mat[x + y * 4] = x == y ? s : 0;
-
-    mat[15] = 1;
-
-    return mat;
   }
 
   void initBuffers()
@@ -162,8 +154,29 @@ private:
 
   bool onButtonPress(GdkEventButton* event, Widget w)
   {
-    m_frozen = !m_frozen;
-    queueDraw();
+    m_drag = true;
+    m_dragX = event.x;
+    m_dragY = event.y;
+    return true;
+  }
+
+  bool onMotionNotify(GdkEventMotion* event, Widget w)
+  {
+    if(m_drag)
+    {
+      m_dragRotationX = (event.x - m_dragX) / 100.0f;
+      m_dragRotationY = (event.y - m_dragY) / 100.0f;
+    }
+
+    return true;
+  }
+
+  bool onButtonRelease(GdkEventButton* event, Widget w)
+  {
+    m_drag = false;
+    m_rotationX += (event.x - m_dragX) / 100.0f;
+    m_rotationY += (event.y - m_dragY) / 100.0f;
+    m_dragRotationX = m_dragRotationY = 0;
     return true;
   }
 
@@ -174,9 +187,6 @@ private:
 
   bool refreshView()
   {
-    if(m_frozen)
-      return true;
-
     m_pinMonitor.lockedUpdate(&refreshPin);
     queueRender();
 
@@ -199,16 +209,105 @@ private:
   IRenderer[] m_renderers;
   int m_currRenderer;
   Timeout m_timer;
-  bool m_frozen;
   int m_zoom = -1;
+  bool m_drag;
+  float m_rotationX = 0, m_rotationY = 0;
+  float m_dragRotationX = 0, m_dragRotationY = 0;
+  double m_dragX, m_dragY;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// renderers
-///////////////////////////////////////////////////////////////////////////////
 static this()
 {
   COLOR_LIGHT_RED = new Color(255, 128, 128);
   COLOR_LIGHT_GRAY = new Color(200, 200, 200);
+}
+
+private:
+unittest
+{
+  assert(identityMatrix() == multMatrix(identityMatrix(), identityMatrix()));
+}
+
+float[16] makeRotationMatrixX(float theta)
+{
+  const cosTheta = cast(float) cos(theta);
+  const sinTheta = cast(float) sin(theta);
+
+  return [
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, cosTheta, -sinTheta, 0.0f,
+    0.0f, sinTheta, cosTheta, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  ];
+}
+
+float[16] makeRotationMatrixY(float theta)
+{
+  const cosTheta = cast(float) cos(theta);
+  const sinTheta = cast(float) sin(theta);
+
+  return [
+    cosTheta, 0.0f, sinTheta, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    -sinTheta, 0.0f, cosTheta, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  ];
+}
+
+float[16] makeRotationMatrixZ(float theta)
+{
+  const cosTheta = cast(float) cos(theta);
+  const sinTheta = cast(float) sin(theta);
+
+  return [
+    cosTheta, -sinTheta, 0.0f, 0.0f,
+    sinTheta, cosTheta, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  ];
+}
+
+float[16] identityMatrix()
+{
+  float r[4 * 4];
+
+  for(int x = 0; x < 4; ++x)
+    for(int y = 0; y < 4; ++y)
+      r[x + y * 4] = x == y ? 1 : 0;
+
+  return r;
+}
+
+float[16] scaleMatrix(float s)
+{
+  float r[4 * 4];
+
+  for(int x = 0; x < 4; ++x)
+    for(int y = 0; y < 4; ++y)
+      r[x + y * 4] = x == y ? s : 0;
+
+  r[15] = 1;
+
+  return r;
+}
+
+float[16] multMatrix(float[16] a, float[16] b)
+{
+  float[16] r;
+
+  for(int row = 0; row < 4; ++row)
+  {
+    for(int col = 0; col < 4; ++col)
+    {
+      float val = 0;
+
+      for(int k = 0; k < 4; ++k)
+        val += a[k + row * 4] * b[col + k * 4];
+
+      r[col + row * 4] = val;
+    }
+  }
+
+  return r;
 }
 

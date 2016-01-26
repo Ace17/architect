@@ -19,12 +19,70 @@ import openglcore;
 
 import i_renderer;
 import dashboard;
+import dashboard_mesh;
 import dashboard_tilemap;
 import dashboard_picture;
 import dashboard_sound;
 import vect;
 
 import misc;
+
+class MeshRenderer : IRenderer
+{
+public:
+  void createBuffers()
+  {
+    glGenBuffers(1, &m_Vbo);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  }
+
+  bool update(Dashboard p)
+  {
+    auto mesh = cast(Mesh)p;
+
+    if(!mesh)
+      return false;
+
+    m_length = 0;
+    GLfloat[] lines;
+
+    foreach(face; mesh.faces)
+    {
+      foreach(vid; face)
+      {
+        auto vertex = mesh.vertices[vid];
+        lines ~=[vertex.x, vertex.y, vertex.z, 0, 0];
+        m_length++;
+      }
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_Vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, lines.length * float.sizeof, lines.ptr, GL_STATIC_DRAW);
+    return true;
+  }
+
+  void render(int programId)
+  {
+    const positionLoc = glGetAttribLocation(programId, "a_position");
+    glEnableVertexAttribArray(positionLoc);
+    glVertexAttribPointer(positionLoc, 3, GL_FLOAT, GL_FALSE, 5 * GLfloat.sizeof, null);
+
+    // connect the uv coords to the "v_texCoord" attribute of the vertex shader
+    const texCoordLoc = glGetAttribLocation(programId, "a_texCoord");
+    glEnableVertexAttribArray(texCoordLoc);
+    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, 5 * GLfloat.sizeof, cast(GLvoid*)(3 * GLfloat.sizeof));
+
+    glDisable(GL_TEXTURE_2D);
+    glDrawArrays(GL_TRIANGLES, 0, m_length);
+  }
+
+private:
+  int m_length;
+  GLuint m_Vbo, m_Texture;
+}
 
 class TileMapRenderer : IRenderer
 {
@@ -390,6 +448,7 @@ public:
 
 static this()
 {
+  g_renderers ~= new MeshRenderer;
   g_renderers ~= new PictureRenderer;
   g_renderers ~= new TileMapRenderer;
   g_renderers ~= new SoundRenderer;
