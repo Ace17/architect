@@ -19,14 +19,14 @@ import openglcore;
 
 import i_renderer;
 import dashboard;
-import dashboard_building;
+import dashboard_tilemap;
 import dashboard_picture;
 import dashboard_sound;
 import vect;
 
 import misc;
 
-class BuildingRenderer : IRenderer
+class TileMapRenderer : IRenderer
 {
 public:
   void createBuffers()
@@ -39,7 +39,7 @@ public:
 
   bool update(Dashboard p)
   {
-    m_building = cast(Building)p;
+    m_building = cast(TileMap)p;
     return m_building !is null;
   }
 
@@ -52,7 +52,7 @@ public:
         drawTile(programId, scroll + Vec2(x, y), m_building.tiles[x][y] % m_Texture.length);
   }
 
-  Building m_building;
+  TileMap m_building;
 
 private:
   int createTile(int seed)
@@ -391,7 +391,7 @@ public:
 static this()
 {
   g_renderers ~= new PictureRenderer;
-  g_renderers ~= new BuildingRenderer;
+  g_renderers ~= new TileMapRenderer;
   g_renderers ~= new SoundRenderer;
   g_renderers ~= new DefaultRenderer;
 }

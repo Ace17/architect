@@ -18,14 +18,14 @@ import std.math;
 
 import execute;
 import value;
-import dashboard_building;
+import dashboard_tilemap;
 
 void op_building(EditionState state, Value[])
 {
-  state.board = new Building;
+  state.board = new TileMap;
 }
 
-void op_rect(Building b, Vec2 pos, Vec2 size, float tile)
+void op_rect(TileMap b, Vec2 pos, Vec2 size, float tile)
 {
   const ix = cast(int) round(pos.x);
   const iy = cast(int) round(pos.y);
@@ -45,8 +45,8 @@ void op_rect(Building b, Vec2 pos, Vec2 size, float tile)
 
 static this()
 {
-  g_Operations["building"] = RealizeFunc("building", &op_building);
+  g_Operations["tilemap"] = RealizeFunc("building", &op_building);
 
-  registerOperator!(op_rect, "building", "rect")();
+  registerOperator!(op_rect, "tilemap", "rect")();
 }
 

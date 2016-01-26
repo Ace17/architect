@@ -1,6 +1,6 @@
 import dashboard;
 
-class Building : Dashboard
+class TileMap : Dashboard
 {
   int[NUM_TILE_COLS][NUM_TILE_ROWS] tiles;
 }

@@ -1,7 +1,7 @@
 
 root()
 {
-  building(); // create dashboard
+  tilemap(); // create dashboard
 
   rect(Vec2(1, 13), Vec2(26, 13), 1);
 
