@@ -48,9 +48,6 @@ Widget createMonitor(IDashboardSource pinFinder)
   return glmon;
 }
 
-static Color COLOR_LIGHT_RED;
-static Color COLOR_LIGHT_GRAY;
-
 private:
 class MonitorArea : GLArea
 {
@@ -224,12 +221,6 @@ private:
   float m_rotationX = 0, m_rotationY = 0;
   float m_dragRotationX = 0, m_dragRotationY = 0;
   double m_dragX, m_dragY;
-}
-
-static this()
-{
-  COLOR_LIGHT_RED = new Color(255, 128, 128);
-  COLOR_LIGHT_GRAY = new Color(200, 200, 200);
 }
 
 private:

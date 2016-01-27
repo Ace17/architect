@@ -23,6 +23,7 @@ import gobject.ObjectG;
 import gobject.ParamSpec;
 
 import gdk.Event;
+import gdk.Color;
 
 import gtk.HPaned;
 import gtk.Label;
@@ -357,4 +358,13 @@ bool isNumber(char c)
 {
   return c == '.' || (c >= '0' && c <= '9');
 }
+
+static this()
+{
+  COLOR_LIGHT_RED = new Color(255, 128, 128);
+  COLOR_LIGHT_GRAY = new Color(200, 200, 200);
+}
+
+static Color COLOR_LIGHT_RED;
+static Color COLOR_LIGHT_GRAY;
 
