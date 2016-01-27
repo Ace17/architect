@@ -69,6 +69,8 @@ public:
     addOnUnrealize(&unrealize);
 
     showAll();
+
+    m_zoom = 1;
   }
 
   ~this()
@@ -99,17 +101,18 @@ private:
   {
     makeCurrent();
     // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
     const c = 0.65;
     glClearColor(c, c, c, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     {
-      const rotationX = makeRotationMatrixY(m_rotationX + m_dragRotationX);
-      const rotationY = makeRotationMatrixX(m_rotationY + m_dragRotationY);
+      const rotationX = makeRotationMatrixY(-(m_rotationX + m_dragRotationX));
+      const rotationY = makeRotationMatrixX(-(m_rotationY + m_dragRotationY));
       auto mvp = identityMatrix();
-      // mvp = multMatrix(mvp, perspectiveMatrix(1.6, 1.0, 0.01, 100));
-      mvp = multMatrix(mvp, scaleMatrix(exp(m_zoom * 0.1)));
+      mvp = multMatrix(mvp, perspectiveMatrix(1.6, 1.0, 1, 100));
+      mvp = multMatrix(mvp, translationMatrix([0, 0, -exp(m_zoom * 0.1)]));
 
       mvp = multMatrix(mvp, rotationX);
       mvp = multMatrix(mvp, rotationY);
@@ -289,6 +292,15 @@ float[4][4] scaleMatrix(float s)
 
   r[3][3] = 1;
 
+  return r;
+}
+
+float[4][4] translationMatrix(float[3] v)
+{
+  auto r = identityMatrix();
+  r[3][0] = v[0];
+  r[3][1] = v[1];
+  r[3][2] = v[2];
   return r;
 }
 
