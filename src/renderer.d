@@ -122,7 +122,6 @@ public:
   TileMap m_building;
 
 private:
-
   void drawTile(int programId, Vec2 pos, int tile)
   {
     const u0 = 0;
@@ -348,7 +347,7 @@ public:
     const nz = 1.0f;
     immutable GLfloat[] lines =
     [
-    // pos, normal, uv
+      // pos, normal, uv
       -1, -1, 0, nx, ny, nz, 0, 0,
       +1, -1, 0, nx, ny, nz, 1, 0,
       +1, +1, 0, nx, ny, nz, 1, 1,
@@ -433,7 +432,6 @@ static this()
 }
 
 private:
-
 int createBasicTexture(int seed)
 {
   uint texture;
@@ -450,10 +448,11 @@ int createBasicTexture(int seed)
     for(int x = 0; x < W; ++x)
     {
       int r, g, b, a;
+
       if(seed == 1234)
       {
         bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
-        r = ((x/10)+(y/10))%2 ? 0 : 0x80;
+        r = ((x / 10) + (y / 10)) % 2 ? 0 : 0x80;
         g = 0xC0;
         b = 0xC0;
         a = 0xFF;
@@ -466,6 +465,7 @@ int createBasicTexture(int seed)
         b = border ? 0x00 : 0xC0 * max(1, seed * 3);
         a = 0xFF;
       }
+
       picBuffer[(x + y * W) * 4 + 0] = cast(ubyte)r;
       picBuffer[(x + y * W) * 4 + 1] = cast(ubyte)g;
       picBuffer[(x + y * W) * 4 + 2] = cast(ubyte)b;
@@ -474,12 +474,13 @@ int createBasicTexture(int seed)
 
   glBindTexture(GL_TEXTURE_2D, texture);
   glTexImage2D(GL_TEXTURE_2D,
-      0,
-      GL_RGBA,
-      W, H,
-      0,
-      GL_RGBA,
-      GL_UNSIGNED_BYTE,
-      picBuffer.ptr);
+               0,
+               GL_RGBA,
+               W, H,
+               0,
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               picBuffer.ptr);
   return texture;
 }
+
