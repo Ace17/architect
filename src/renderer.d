@@ -50,11 +50,13 @@ public:
 
     foreach(face; mesh.faces)
     {
-      auto normal = Vec3(1, 0, 0);
-      foreach(vid; face)
+      foreach(i, vid; face)
       {
         auto vertex = mesh.vertices[vid];
-        lines ~=[vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, 0, 0];
+        immutable normal = Vec3(1, 0, 0);
+        immutable u = [0, 1, 1];
+        immutable v = [0, 0, 1];
+        lines ~=[vertex.x, vertex.y, vertex.z, normal.x, normal.y, normal.z, u[i], v[i]];
         m_length++;
       }
     }
@@ -68,6 +70,10 @@ public:
   void render(int programId)
   {
     glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     const positionLoc = glGetAttribLocation(programId, "a_position");
     glEnableVertexAttribArray(positionLoc);
@@ -229,7 +235,7 @@ public:
       -1, -1, 0, nx, ny, nz, 0, 0,
       +1, -1, 0, nx, ny, nz, 1, 0,
       +1, +1, 0, nx, ny, nz, 1, 1,
-                             
+
       +1, +1, 0, nx, ny, nz, 1, 1,
       -1, +1, 0, nx, ny, nz, 0, 1,
       -1, -1, 0, nx, ny, nz, 0, 0,
@@ -443,14 +449,23 @@ int createBasicTexture(int seed)
   for(int y = 0; y < H; ++y)
     for(int x = 0; x < W; ++x)
     {
-      const val = 0xC0;
-      bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
+      int r, g, b, a;
       if(seed == 1234)
-        border = false;
-      const r = border ? 0x00 : 0x80 * max(1, seed * 3);
-      const g = border ? 0x00 : 0x80 * max(1, seed * 3);
-      const b = border ? 0x00 : 0xC0 * max(1, seed * 3);
-      const a = 0xFF;
+      {
+        bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
+        r = ((x/10)+(y/10))%2 ? 0 : 0x80;
+        g = 0xC0;
+        b = 0xC0;
+        a = 0xFF;
+      }
+      else
+      {
+        bool border = x == 0 || y == 0 || x == W - 1 || y == H - 1;
+        r = border ? 0x00 : 0x80 * max(1, seed * 3);
+        g = border ? 0x00 : 0x80 * max(1, seed * 3);
+        b = border ? 0x00 : 0xC0 * max(1, seed * 3);
+        a = 0xFF;
+      }
       picBuffer[(x + y * W) * 4 + 0] = cast(ubyte)r;
       picBuffer[(x + y * W) * 4 + 1] = cast(ubyte)g;
       picBuffer[(x + y * W) * 4 + 2] = cast(ubyte)b;
