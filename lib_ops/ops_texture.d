@@ -40,8 +40,7 @@ void op_texture(EditionState state, Value[] values)
   size.y = max(size.y, 16);
   g_Texture = new GenTexture(cast(int)size.x, cast(int)size.y);
 
-
-  for(int i=0;i < g_Texture.NPixels;++i)
+  for(int i = 0; i < g_Texture.NPixels; ++i)
   {
     g_Texture.Data[i].r = 0;
     g_Texture.Data[i].g = 255;
@@ -57,12 +56,12 @@ void op_save(EditionState state, Value[] a)
   const h = cast(int)g_Texture.YRes;
   pic.data.length = w * h;
 
-  for(int i=0;i < g_Texture.NPixels;++i)
+  for(int i = 0; i < g_Texture.NPixels; ++i)
   {
-    pic.data[i].r = g_Texture.Data[i].r/65536.0f;
-    pic.data[i].g = g_Texture.Data[i].g/65536.0f;
-    pic.data[i].b = g_Texture.Data[i].b/65536.0f;
-    pic.data[i].a = g_Texture.Data[i].a/65536.0f;
+    pic.data[i].r = g_Texture.Data[i].r / 65536.0f;
+    pic.data[i].g = g_Texture.Data[i].g / 65536.0f;
+    pic.data[i].b = g_Texture.Data[i].b / 65536.0f;
+    pic.data[i].a = g_Texture.Data[i].a / 65536.0f;
   }
 
   state.board = pic;
@@ -76,7 +75,7 @@ void op_noise(Picture pic, float freqx, float freqy, float octaves, float fallof
   grad.Data[0].Init(0xffffffff);
   grad.Data[1].Init(0x00000000);
 
-  g_Texture.Noise(grad, to!int(freqx), to!int(freqy), to!int(octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
+  g_Texture.Noise(grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
 }
 
 void op_derive(Picture pic, float fop, float strength)
@@ -91,8 +90,10 @@ void op_derive(Picture pic, float fop, float strength)
 GenTexture* cloneTexture(const GenTexture* oldTexture)
 {
   auto pText = new GenTexture(oldTexture.XRes, oldTexture.YRes);
-  for(int i=0;i < pText.NPixels;++i)
+
+  for(int i = 0; i < pText.NPixels; ++i)
     pText.Data[i] = oldTexture.Data[i];
+
   return pText;
 }
 
@@ -100,7 +101,7 @@ T floatToEnum(T)(float input)
 {
   const min = 0;
   const max = cast(int)T.max;
-  return cast(T)clamp(cast(int)input, min, max);
+  return cast(T) clamp(cast(int)input, min, max);
 }
 
 void op_voronoi(Picture pic, float intensity, float fmaxCount, float minDist)
