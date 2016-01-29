@@ -18,9 +18,12 @@ srcs:=\
 	$(THIS)/ops_mesh.d\
 	$(THIS)/ops_picture.d\
 	$(THIS)/ops_sound.d\
+	$(THIS)/ops_texture.d\
 	$(THIS)/ops_tilemap.d\
 	$(THIS)/parser.d\
 	$(THIS)/raii.d\
 	$(THIS)/value.d\
 	$(THIS)/vect.d\
+	$(THIS)/gentexture.d\
+	$(THIS)/gentexture/gentexture.cpp\
 

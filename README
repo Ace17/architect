@@ -6,9 +6,13 @@ by Sebastien Alaiwan
 Introduction
 ------------
 
-Architect is an instand-feedback generic editor.
-It allows users to specify its document as a sequence of edit steps to the
-final rendering. The list of edit steps is computed from composable and
+Architect is an interactive generic asset editor.
+
+It currently contains basic support for sound, textures, tilemaps.
+3D mesh support is in progress.
+
+It allows users to specify their documents as a sequence of edit steps to the
+final rendering. The list of edit steps is itself computed from composable and
 parameterizable templates.
 
 Each keystroke causes the editor to re-compute the list of edit sequence, and
@@ -32,5 +36,13 @@ $ ./bin/architect-gui.exe demos/picture.arc
 $ ./bin/architect-gui.exe demos/sound.arc
 $ ./bin/architect-gui.exe demos/tiles.arc
 
+Credits
+-------
 
+This project contains code from "ktg", a public-domain texture generator written by Fabien Giesen.
+A lot of thanks to him!
+The original texture generator is available on github, as a part of the fr_public repository.
+
+And thanks to all the members of the Farbrausch demomaker group,
+who I find to be a constant source of inspiration!
 

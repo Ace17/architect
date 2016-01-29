@@ -8,8 +8,9 @@ REPO_URL?=http://code.alaiwan.org/bzr
 
 DFLAGS:=-funittest
 
+CXXFLAGS+=-std=c++14
 DFLAGS+=-g3 -O3
-LDFLAGS+=-g
+LDFLAGS+=-g -lstdc++
 
 THIS:=src
 include src/project.mk
@@ -43,6 +44,7 @@ SRCS:=\
   $(lib_ops.srcs)\
 
 GUI_OBJS:=$(SRCS:%.d=$(BIN)/%_d.o)
+GUI_OBJS:=$(GUI_OBJS:%.cpp=$(BIN)/%_cpp.o)
 $(BIN)/architect-gui.exe: $(GUI_OBJS)
 TARGETS+=$(BIN)/architect-gui.exe
 
@@ -52,6 +54,7 @@ SRCS:=\
   $(lib_ops.srcs)\
 
 OBJS:=$(SRCS:%.d=$(BIN)/%_d.o)
+OBJS:=$(OBJS:%.cpp=$(BIN)/%_cpp.o)
 $(BIN)/architect.exe: $(OBJS)
 TARGETS+=$(BIN)/architect.exe
 
