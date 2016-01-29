@@ -16,6 +16,7 @@
 import std.math;
 import std.algorithm;
 import std.conv;
+import std.random;
 
 import misc;
 
@@ -102,11 +103,72 @@ T floatToEnum(T)(float input)
   return cast(T)clamp(cast(int)input, min, max);
 }
 
+void op_voronoi(Picture pic, float intensity, float fmaxCount, float minDist)
+{
+  Random gen;
+
+  auto maxCount = min(256, cast(int)fmaxCount);
+  CellCenter centers[256];
+
+  auto grad = GenTexture(2, 1);
+  grad.Data[0].Init(0xffffffff);
+  grad.Data[1].Init(0x00000000);
+
+  // generate random center points
+  for(int i = 0; i < maxCount; i++)
+  {
+    int intens = uniform(0, cast(int)(intensity * 256), gen);
+
+    centers[i].x = uniform(0.0f, 1.0f, gen);
+    centers[i].y = uniform(0.0f, 1.0f, gen);
+    centers[i].color = Color(intens, intens, intens, 255);
+  }
+
+  // remove points too close together
+  const minDistSq = minDist * minDist;
+
+  for(int i = 1; i < maxCount;)
+  {
+    const x = centers[i].x;
+    const y = centers[i].y;
+
+    // try to find a point closer than minDist
+    int j;
+
+    for(j = 0; j < i; j++)
+    {
+      auto dx = centers[j].x - x;
+      auto dy = centers[j].y - y;
+
+      if(dx < 0.0f)
+        dx += 1.0f;
+
+      if(dy < 0.0f)
+        dy += 1.0f;
+
+      dx = min(dx, 1.0f - dx);
+      dy = min(dy, 1.0f - dy);
+
+      if(dx * dx + dy * dy < minDistSq) // point is too close, stop
+        break;
+    }
+
+    if(j < i) // we found such a point
+      centers[i] = centers[--maxCount]; // remove this one
+    else // accept this one
+      i++;
+  }
+
+  // generate the image
+  g_Texture.Cells(grad, centers.ptr, maxCount, 0.0f, CellMode.CellInner);
+}
+
 static this()
 {
   g_Operations["texture"] = RealizeFunc("txt", &op_texture);
   g_Operations["save"] = RealizeFunc("txt", &op_save);
   registerOperator!(op_noise, "txt", "tnoise")();
   registerOperator!(op_derive, "txt", "tderive")();
+  registerOperator!(op_voronoi, "txt", "tvoronoi")();
 }
 
