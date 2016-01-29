@@ -17,6 +17,8 @@ import std.math;
 import std.algorithm;
 import std.conv;
 
+import misc;
+
 import execute;
 import value;
 import dashboard_picture;
@@ -76,10 +78,35 @@ void op_noise(Picture pic, float freqx, float freqy, float octaves, float fallof
   g_Texture.Noise(grad, to!int(freqx), to!int(freqy), to!int(octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
 }
 
+void op_derive(Picture pic, float fop, float strength)
+{
+  auto oldTexture = g_Texture;
+  g_Texture = cloneTexture(oldTexture);
+  auto op = floatToEnum!DeriveOp(fop);
+  g_Texture.Derive(*oldTexture, op, strength);
+  destroy(*oldTexture);
+}
+
+GenTexture* cloneTexture(const GenTexture* oldTexture)
+{
+  auto pText = new GenTexture(oldTexture.XRes, oldTexture.YRes);
+  for(int i=0;i < pText.NPixels;++i)
+    pText.Data[i] = oldTexture.Data[i];
+  return pText;
+}
+
+T floatToEnum(T)(float input)
+{
+  const min = 0;
+  const max = cast(int)T.max;
+  return cast(T)clamp(cast(int)input, min, max);
+}
+
 static this()
 {
   g_Operations["texture"] = RealizeFunc("txt", &op_texture);
   g_Operations["save"] = RealizeFunc("txt", &op_save);
   registerOperator!(op_noise, "txt", "tnoise")();
+  registerOperator!(op_derive, "txt", "tderive")();
 }
 
