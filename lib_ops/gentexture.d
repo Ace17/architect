@@ -9,13 +9,9 @@ alias sU64 = ulong;
 
 // Pixel. Uses whole 16bit value range (0-65535).
 // 0=>0.0, 65535=>1.0.
-union Pixel
+struct Pixel
 {
-  struct
-  {
     sU16 r, g, b, a; // OpenGL byte order
-  };
-  sU64 v;         // the whole value
 
   void Init(sU8 r, sU8 g, sU8 b, sU8 a);
   void Init(sU32 rgba); // 0xaarrggbb (D3D style)
@@ -26,7 +22,7 @@ union Pixel
   void CompositeMulC(Pixel b);
   void CompositeROver(Pixel b);
   void CompositeScreen(Pixel b);
-};
+}
 
 Pixel Color(int r, int g, int b, int a=255)
 {
@@ -40,7 +36,7 @@ struct CellCenter
 {
   sF32 x, y;
   Pixel color;
-};
+}
 
 // LinearInput. One input for "linear combine".
 
@@ -50,7 +46,7 @@ struct LinearInput
   sF32 Weight;              // its weight
   sF32 UShift, VShift;       // u/v translate parameter
   sInt FilterMode;          // filtering mode (as in CoordMatrixTransform)
-};
+}
 
 // Simple 4x4 matrix type
 alias Matrix44 = sF32[4][4];
@@ -128,7 +124,7 @@ enum CombineOp
   CombineScreen,
   CombineDarken,
   CombineLighten,
-};
+}
 
 enum NoiseMode
 {

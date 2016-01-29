@@ -11,13 +11,9 @@
 
 // Pixel. Uses whole 16bit value range (0-65535).
 // 0=>0.0, 65535=>1.0.
-union Pixel
+struct Pixel
 {
-  struct
-  {
-    sU16 r, g, b, a; // OpenGL byte order
-  };
-  sU64 v;         // the whole value
+  sU16 r, g, b, a; // OpenGL byte order
 
   void Init(sU8 r, sU8 g, sU8 b, sU8 a);
   void Init(sU32 rgba); // 0xaarrggbb (D3D style)
