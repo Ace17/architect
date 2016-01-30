@@ -104,6 +104,14 @@ void op_derive(Picture, float fop, float strength)
   destroy(*oldTexture);
 }
 
+void op_blur(Picture, float sizex, float sizey, int order, int mode)
+{
+  auto oldTexture = g_Texture;
+  g_Texture = cloneTexture(oldTexture);
+  g_Texture.Blur(*oldTexture, sizex, sizey, order, mode);
+  destroy(*oldTexture);
+}
+
 GenTexture* cloneTexture(const GenTexture* oldTexture)
 {
   auto pText = new GenTexture(oldTexture.XRes, oldTexture.YRes);
@@ -121,11 +129,11 @@ T floatToEnum(T)(float input)
   return cast(T) clamp(cast(int)input, min, max);
 }
 
-void op_voronoi(Picture, float intensity, float fmaxCount, float minDist)
+void op_voronoi(Picture, float intensity, int maxCount, float minDist)
 {
   Random gen;
 
-  auto maxCount = min(256, cast(int)fmaxCount);
+  maxCount = min(256, maxCount);
   CellCenter centers[256];
 
   auto grad = GenTexture(2, 1);
@@ -198,7 +206,7 @@ void op_mix(Picture, int idx, float alpha)
 
 int clampTextureIndex(int idx)
 {
-  return clamp(idx, 0, int(g_Textures.length-1));
+  return clamp(idx, 0, int(g_Textures.length - 1));
 }
 
 gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
@@ -221,5 +229,6 @@ static this()
   registerOperator!(op_derive, "txt", "tderive")();
   registerOperator!(op_voronoi, "txt", "tvoronoi")();
   registerOperator!(op_mix, "txt", "tmix")();
+  registerOperator!(op_blur, "txt", "tblur")();
 }
 

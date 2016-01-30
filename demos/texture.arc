@@ -9,5 +9,6 @@ root()
   tstore(2);
   tderive(1, 6);
   tmix(2, 0.4);
+  tblur(0.01, 0.01, 5, 0.1);
   display();
 }
