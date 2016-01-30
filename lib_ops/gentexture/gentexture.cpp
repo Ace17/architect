@@ -7,19 +7,7 @@
 
 using namespace std;
 
-typedef uint8_t sU8;   // for packed arrays
-typedef uint16_t sU16;  // for packed arrays
-typedef uint32_t sU32;  // for packed arrays and bitfields
-typedef uint64_t sU64;  // use as needed
-typedef int8_t sS8;   // for packed arrays
-typedef int16_t sS16;  // for packed arrays
-typedef int32_t sS32;  // for packed arrays
-typedef int64_t sS64;  // use as needed
-typedef int sInt;  // use this most
-typedef intptr_t sDInt; // type for pointer diff
-
 typedef float sF32;  // basic floatingpoint
-typedef double sF64;  // use as needed
 
 /****************************************************************************/
 /***                                                                      ***/
@@ -33,18 +21,18 @@ inline T sSquare(T a)
   return a * a;
 }
 
-inline sF64 sFInvSqrt(sF64 f)
+inline double sFInvSqrt(double f)
 {
   return 1.0 / sqrt(f);
 }
 
-inline sF64 sFPow(sF64 a, sF64 b)
+inline double sFPow(double a, double b)
 {
   return pow(a, b);
 }
 
 // Return true if x is a power of 2, false otherwise
-static bool IsPowerOf2(sInt x)
+static bool IsPowerOf2(int x)
 {
   return (x & (x - 1)) == 0;
 }
@@ -56,9 +44,9 @@ inline T clamp(T val, T min, T max)
 }
 
 // Returns floor(log2(x))
-static sInt FloorLog2(sInt x)
+static int FloorLog2(int x)
 {
-  sInt res = 0;
+  int res = 0;
 
   if(x & 0xffff0000)
     x >>= 16, res += 16;
@@ -80,27 +68,27 @@ static sInt FloorLog2(sInt x)
 
 // Multiply intensities.
 // Returns the result of round(a*b/65535.0)
-static sU32 MulIntens(sU32 a, sU32 b)
+static uint32_t MulIntens(uint32_t a, uint32_t b)
 {
-  sU32 x = a * b + 0x8000;
+  uint32_t x = a * b + 0x8000;
   return (x + (x >> 16)) >> 16;
 }
 
 // Returns the result of round(a*b/65536)
-static sInt MulShift16(sInt a, sInt b)
+static int MulShift16(int a, int b)
 {
-  return (sS64(a) * sS64(b) + 0x8000) >> 16;
+  return (int64_t(a) * int64_t(b) + 0x8000) >> 16;
 }
 
 // Returns the result of round(a*b/256)
-static sU32 UMulShift8(sU32 a, sU32 b)
+static uint32_t UMulShift8(uint32_t a, uint32_t b)
 {
-  return (sU64(a) * sU64(b) + 0x80) >> 8;
+  return (uint64_t(a) * uint64_t(b) + 0x80) >> 8;
 }
 
 // Linearly interpolate between a and b with t=0..65536 [0,1]
 // 0<=a,b<65536.
-static sInt Lerp(sInt t, sInt a, sInt b)
+static int Lerp(int t, int a, int b)
 {
   return a + ((t * (b - a)) >> 16);
 }
@@ -111,10 +99,10 @@ static sF32 LerpF(sF32 t, sF32 a, sF32 b)
 }
 
 // Perlin permutation table
-static sU16 Ptable[4096];
-static sU32* Ptemp;
+static uint16_t Ptable[4096];
+static uint32_t* Ptemp;
 
-static sInt P(sInt i)
+static int P(int i)
 {
   return Ptable[i & 4095];
 }
@@ -122,25 +110,25 @@ static sInt P(sInt i)
 // Initialize perlin
 static int InitPerlinCompare(const void* e1, const void* e2)
 {
-  unsigned i1 = Ptemp[*((sU16*)e1)];
-  unsigned i2 = Ptemp[*((sU16*)e2)];
+  unsigned i1 = Ptemp[*((uint16_t*)e1)];
+  unsigned i2 = Ptemp[*((uint16_t*)e2)];
 
   return i1 - i2;
 }
 
 static void InitPerlin()
 {
-  sU32 seed = 0x93638245u;
-  Ptemp = new sU32[4096];
+  uint32_t seed = 0x93638245u;
+  Ptemp = new uint32_t[4096];
 
   // generate 4096 pseudorandom numbers using LFSR
-  for(sInt i = 0; i < 4096; i++)
+  for(int i = 0; i < 4096; i++)
   {
     Ptemp[i] = seed;
     seed = (seed << 1) ^ ((seed & 0x80000000u) ? 0xc0000401u : 0);
   }
 
-  for(sInt i = 0; i < 4096; i++)
+  for(int i = 0; i < 4096; i++)
     Ptable[i] = i;
 
   qsort(Ptable, 4096, sizeof(*Ptable), InitPerlinCompare);
@@ -150,7 +138,7 @@ static void InitPerlin()
 }
 
 // Perlin gradient function
-static sF32 PGradient2(sInt hash, sF32 x, sF32 y)
+static sF32 PGradient2(int hash, sF32 x, sF32 y)
 {
   hash &= 7;
   sF32 u = hash < 4 ? x : y;
@@ -166,11 +154,11 @@ static sF32 SmoothStep(sF32 x)
 }
 
 // 2D non-bandlimited noise function
-static sF32 Noise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
+static sF32 Noise2(int x, int y, int maskx, int masky, int seed)
 {
-  static const sInt M = 0x10000;
+  static const int M = 0x10000;
 
-  sInt X = x >> 16, Y = y >> 16;
+  int X = x >> 16, Y = y >> 16;
   sF32 fx = (x & (M - 1)) / 65536.0f;
   sF32 fy = (y & (M - 1)) / 65536.0f;
   sF32 u = SmoothStep(fx);
@@ -188,12 +176,12 @@ static sF32 Noise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
 }
 
 // 2D Perlin noise function
-static sF32 PNoise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
+static sF32 PNoise2(int x, int y, int maskx, int masky, int seed)
 {
-  static const sInt M = 0x10000;
+  static const int M = 0x10000;
   static const sF32 S = sFInvSqrt(5.0f);
 
-  sInt X = x >> 16, Y = y >> 16;
+  int X = x >> 16, Y = y >> 16;
   sF32 fx = (x & (M - 1)) / 65536.0f;
   sF32 fy = (y & (M - 1)) / 65536.0f;
   sF32 u = SmoothStep(fx);
@@ -211,9 +199,9 @@ static sF32 PNoise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
                      PGradient2((P(((X + 1) & maskx) + P(((Y + 1) & masky)) + seed)), fx - 1.0f, fy - 1.0f)));
 }
 
-static sInt GShuffle(sInt x, sInt y, sInt z)
+static int GShuffle(int x, int y, int z)
 {
-  /*sU32 seed = ((x & 0x3ff) << 20) | ((y & 0x3ff) << 10) | (z & 0x3ff);
+  /*uint32_t seed = ((x & 0x3ff) << 20) | ((y & 0x3ff) << 10) | (z & 0x3ff);
 
      seed ^= seed << 3;
      seed += seed >> 5;
@@ -228,19 +216,19 @@ static sInt GShuffle(sInt x, sInt y, sInt z)
 }
 
 // 2D grid noise function (tiling)
-static sF32 GNoise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
+static sF32 GNoise2(int x, int y, int maskx, int masky, int seed)
 {
   // input coordinates
-  sInt i = x >> 16;
-  sInt j = y >> 16;
+  int i = x >> 16;
+  int j = y >> 16;
   sF32 xp = (x & 0xffff) / 65536.0f;
   sF32 yp = (y & 0xffff) / 65536.0f;
   sF32 sum = 0.0f;
 
   // sum over grid vertices
-  for(sInt oy = 0; oy <= 1; oy++)
+  for(int oy = 0; oy <= 1; oy++)
   {
-    for(sInt ox = 0; ox <= 1; ox++)
+    for(int ox = 0; ox <= 1; ox++)
     {
       sF32 xr = xp - ox;
       sF32 yr = yp - oy;
@@ -266,7 +254,7 @@ static sF32 GNoise2(sInt x, sInt y, sInt maskx, sInt masky, sInt seed)
 /***                                                                      ***/
 /****************************************************************************/
 
-void Pixel::Init(sU8 _r, sU8 _g, sU8 _b, sU8 _a)
+void Pixel::Init(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
 {
   r = (_r << 8) | _r;
   g = (_g << 8) | _g;
@@ -274,7 +262,7 @@ void Pixel::Init(sU8 _r, sU8 _g, sU8 _b, sU8 _a)
   a = (_a << 8) | _a;
 }
 
-void Pixel::Init(sU32 rgba)
+void Pixel::Init(uint32_t rgba)
 {
   auto rv = (rgba >> 16) & 0xff;
   auto gv = (rgba >> 8) & 0xff;
@@ -287,7 +275,7 @@ void Pixel::Init(sU32 rgba)
   b = MulIntens((bv << 8) | bv, a);
 }
 
-void Pixel::Lerp(sInt t, Pixel x, Pixel y)
+void Pixel::Lerp(int t, Pixel x, Pixel y)
 {
   r = ::Lerp(t, x.r, y.r);
   g = ::Lerp(t, x.g, y.g);
@@ -297,10 +285,10 @@ void Pixel::Lerp(sInt t, Pixel x, Pixel y)
 
 void Pixel::CompositeAdd(Pixel x)
 {
-  r = clamp<sInt>(r + x.r, 0, 65535);
-  g = clamp<sInt>(g + x.g, 0, 65535);
-  b = clamp<sInt>(b + x.b, 0, 65535);
-  a = clamp<sInt>(a + x.a, 0, 65535);
+  r = clamp<int>(r + x.r, 0, 65535);
+  g = clamp<int>(g + x.g, 0, 65535);
+  b = clamp<int>(b + x.b, 0, 65535);
+  a = clamp<int>(a + x.a, 0, 65535);
 }
 
 void Pixel::CompositeMulC(Pixel x)
@@ -313,7 +301,7 @@ void Pixel::CompositeMulC(Pixel x)
 
 void Pixel::CompositeROver(Pixel x)
 {
-  sInt transIn = 65535 - x.a;
+  int transIn = 65535 - x.a;
   r = MulIntens(transIn, r) + x.r;
   g = MulIntens(transIn, g) + x.g;
   b = MulIntens(transIn, b) + x.b;
@@ -352,7 +340,7 @@ GenTexture::GenTexture()
   UpdateSize();
 }
 
-GenTexture::GenTexture(sInt xres, sInt yres)
+GenTexture::GenTexture(int xres, int yres)
 {
   Data = 0;
   XRes = 0;
@@ -381,7 +369,7 @@ void GenTexture::Free()
   delete[] Data;
 }
 
-void GenTexture::Init(sInt xres, sInt yres)
+void GenTexture::Init(int xres, int yres)
 {
   if(XRes != xres || YRes != yres)
   {
@@ -434,7 +422,7 @@ bool GenTexture::SameSize(const GenTexture& x) const
 }
 
 // ---- Sampling helpers
-void GenTexture::SampleNearest(Pixel& result, sInt x, sInt y, sInt wrapMode) const
+void GenTexture::SampleNearest(Pixel& result, int x, int y, int wrapMode) const
 {
   if(wrapMode & 1)
     x = clamp(x, MinX, 0x1000000 - MinX);
@@ -445,13 +433,13 @@ void GenTexture::SampleNearest(Pixel& result, sInt x, sInt y, sInt wrapMode) con
   x &= 0xffffff;
   y &= 0xffffff;
 
-  sInt ix = x >> (24 - ShiftX);
-  sInt iy = y >> (24 - ShiftY);
+  int ix = x >> (24 - ShiftX);
+  int iy = y >> (24 - ShiftY);
 
   result = Data[(iy << ShiftX) + ix];
 }
 
-void GenTexture::SampleBilinear(Pixel& result, sInt x, sInt y, sInt wrapMode) const
+void GenTexture::SampleBilinear(Pixel& result, int x, int y, int wrapMode) const
 {
   if(wrapMode & 1)
     x = clamp(x, MinX, 0x1000000 - MinX);
@@ -462,12 +450,12 @@ void GenTexture::SampleBilinear(Pixel& result, sInt x, sInt y, sInt wrapMode) co
   x = (x - MinX) & 0xffffff;
   y = (y - MinY) & 0xffffff;
 
-  sInt x0 = x >> (24 - ShiftX);
-  sInt x1 = (x0 + 1) & (XRes - 1);
-  sInt y0 = y >> (24 - ShiftY);
-  sInt y1 = (y0 + 1) & (YRes - 1);
-  sInt fx = sU32(x << (ShiftX + 8)) >> 16;
-  sInt fy = sU32(y << (ShiftY + 8)) >> 16;
+  int x0 = x >> (24 - ShiftX);
+  int x1 = (x0 + 1) & (XRes - 1);
+  int y0 = y >> (24 - ShiftY);
+  int y1 = (y0 + 1) & (YRes - 1);
+  int fx = uint32_t(x << (ShiftX + 8)) >> 16;
+  int fy = uint32_t(y << (ShiftY + 8)) >> 16;
 
   Pixel t0, t1;
   t0.Lerp(fx, Data[(y0 << ShiftX) + x0], Data[(y0 << ShiftX) + x1]);
@@ -475,7 +463,7 @@ void GenTexture::SampleBilinear(Pixel& result, sInt x, sInt y, sInt wrapMode) co
   result.Lerp(fy, t0, t1);
 }
 
-void GenTexture::SampleFiltered(Pixel& result, sInt x, sInt y, sInt filterMode) const
+void GenTexture::SampleFiltered(Pixel& result, int x, int y, int filterMode) const
 {
   if(filterMode & FilterBilinear)
     SampleBilinear(result, x, y, filterMode);
@@ -483,27 +471,27 @@ void GenTexture::SampleFiltered(Pixel& result, sInt x, sInt y, sInt filterMode) 
     SampleNearest(result, x, y, filterMode);
 }
 
-void GenTexture::SampleGradient(Pixel& result, sInt x) const
+void GenTexture::SampleGradient(Pixel& result, int x) const
 {
   x = clamp(x, 0, 1 << 24);
   x -= x >> ShiftX; // x=(1<<24) -> Take rightmost pixel
 
-  sInt x0 = x >> (24 - ShiftX);
-  sInt x1 = (x0 + 1) & (XRes - 1);
-  sInt fx = sU32(x << (ShiftX + 8)) >> 16;
+  int x0 = x >> (24 - ShiftX);
+  int x1 = (x0 + 1) & (XRes - 1);
+  int fx = uint32_t(x << (ShiftX + 8)) >> 16;
 
   result.Lerp(fx, Data[x0], Data[x1]);
 }
 
 // ---- The operators themselves
 
-void GenTexture::Noise(const GenTexture& grad, sInt freqX, sInt freqY, sInt oct, sF32 fadeoff, sInt seed, NoiseMode mode)
+void GenTexture::Noise(const GenTexture& grad, int freqX, int freqY, int oct, sF32 fadeoff, int seed, NoiseMode mode)
 {
   assert(oct > 0);
 
   seed = P(seed);
 
-  sInt offset;
+  int offset;
   sF32 scaling;
 
   if(mode & NoiseNormalize)
@@ -522,24 +510,24 @@ void GenTexture::Noise(const GenTexture& grad, sInt freqX, sInt freqY, sInt oct,
     scaling *= (1 << 23);
   }
 
-  sInt offsX = (1 << (16 - ShiftX + freqX)) >> 1;
-  sInt offsY = (1 << (16 - ShiftY + freqY)) >> 1;
+  int offsX = (1 << (16 - ShiftX + freqX)) >> 1;
+  int offsY = (1 << (16 - ShiftY + freqY)) >> 1;
 
   Pixel* out = Data;
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
-      sInt n = offset;
+      int n = offset;
       sF32 s = scaling;
 
-      sInt px = (x << (16 - ShiftX + freqX)) + offsX;
-      sInt py = (y << (16 - ShiftY + freqY)) + offsY;
-      sInt mx = (1 << freqX) - 1;
-      sInt my = (1 << freqY) - 1;
+      int px = (x << (16 - ShiftX + freqX)) + offsX;
+      int py = (y << (16 - ShiftY + freqY)) + offsY;
+      int mx = (1 << freqX) - 1;
+      int my = (1 << freqY) - 1;
 
-      for(sInt i = 0; i < oct; i++)
+      for(int i = 0; i < oct; i++)
       {
         sF32 nv = (mode & NoiseBandlimit) ? Noise2(px, py, mx, my, seed) : GNoise2(px, py, mx, my, seed);
 
@@ -570,10 +558,10 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
     *this = bgTex;
 
   // calculate bounding rect
-  sInt minX = max(0, int(floor((orgx - abs(ux) - abs(vx)) * XRes)));
-  sInt minY = max(0, int(floor((orgy - abs(uy) - abs(vy)) * YRes)));
-  sInt maxX = min(XRes - 1, int(ceil((orgx + abs(ux) + abs(vx)) * XRes)));
-  sInt maxY = min(YRes - 1, int(ceil((orgy + abs(uy) + abs(vy)) * YRes)));
+  int minX = max(0, int(floor((orgx - abs(ux) - abs(vx)) * XRes)));
+  int minY = max(0, int(floor((orgy - abs(uy) - abs(vy)) * YRes)));
+  int maxX = min(XRes - 1, int(ceil((orgx + abs(ux) + abs(vx)) * XRes)));
+  int maxY = min(YRes - 1, int(ceil((orgy + abs(uy) + abs(vy)) * YRes)));
 
   // solve for u0,v0 and deltas (cramer's rule)
   sF32 detM = ux * vy - uy * vx;
@@ -584,31 +572,31 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
   sF32 invM = (1 << 16) / detM;
   sF32 rmx = (minX + 0.5f) / XRes - orgx;
   sF32 rmy = (minY + 0.5f) / YRes - orgy;
-  sInt u0 = (rmx * vy - rmy * vx) * invM;
-  sInt v0 = (ux * rmy - uy * rmx) * invM;
-  sInt dudx = vy * invM / XRes;
-  sInt dvdx = -uy * invM / XRes;
-  sInt dudy = -vx * invM / YRes;
-  sInt dvdy = ux * invM / YRes;
-  sInt ruf = min<sInt>(rectu * 65536.0f, 65535);
-  sInt rvf = min<sInt>(rectv * 65536.0f, 65535);
+  int u0 = (rmx * vy - rmy * vx) * invM;
+  int v0 = (ux * rmy - uy * rmx) * invM;
+  int dudx = vy * invM / XRes;
+  int dvdx = -uy * invM / XRes;
+  int dudy = -vx * invM / YRes;
+  int dvdy = ux * invM / YRes;
+  int ruf = min<int>(rectu * 65536.0f, 65535);
+  int rvf = min<int>(rectv * 65536.0f, 65535);
   sF32 gus = 1.0f / (65536.0f - ruf);
   sF32 gvs = 1.0f / (65536.0f - rvf);
 
-  for(sInt y = minY; y <= maxY; y++)
+  for(int y = minY; y <= maxY; y++)
   {
     Pixel* out = &Data[y * XRes + minX];
-    sInt u = u0;
-    sInt v = v0;
+    int u = u0;
+    int v = v0;
 
-    for(sInt x = minX; x <= maxX; x++)
+    for(int x = minX; x <= maxX; x++)
     {
       if(u > -65536 && u < 65536 && v > -65536 && v < 65536)
       {
         Pixel col;
 
-        sInt du = max(abs(u) - ruf, 0);
-        sInt dv = max(abs(v) - rvf, 0);
+        int du = max(abs(u) - ruf, 0);
+        int dv = max(abs(v) - rvf, 0);
 
         if(!du && !dv)
         {
@@ -639,15 +627,15 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
   }
 }
 
-void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt nCenters, sF32 amp, sInt mode)
+void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, int mode)
 {
   assert(((mode & 1) == 0) ? nCenters >= 1 : nCenters >= 2);
 
   struct CellPoint
   {
-    sInt x, y;
-    sInt distY;
-    sInt node;
+    int x, y;
+    int distY;
+    int node;
   };
 
   Pixel* out = Data;
@@ -655,39 +643,39 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
   vector<CellPoint> points(nCenters);
 
   // convert cell center coordinates to fixed point
-  static const sInt scaleF = 14; // should be <=14 for 32-bit ints.
-  static const sInt scale = 1 << scaleF;
+  static const int scaleF = 14; // should be <=14 for 32-bit ints.
+  static const int scale = 1 << scaleF;
 
-  for(sInt i = 0; i < nCenters; i++)
+  for(int i = 0; i < nCenters; i++)
   {
-    points[i].x = sInt(centers[i].x * scale + 0.5f) & (scale - 1);
-    points[i].y = sInt(centers[i].y * scale + 0.5f) & (scale - 1);
+    points[i].x = int(centers[i].x * scale + 0.5f) & (scale - 1);
+    points[i].y = int(centers[i].y * scale + 0.5f) & (scale - 1);
     points[i].distY = -1;
     points[i].node = i;
   }
 
-  sInt stepX = 1 << (scaleF - ShiftX);
-  sInt stepY = 1 << (scaleF - ShiftY);
-  sInt yc = stepY >> 1;
+  int stepX = 1 << (scaleF - ShiftX);
+  int stepY = 1 << (scaleF - ShiftY);
+  int yc = stepY >> 1;
 
   amp = amp * (1 << 24);
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    sInt xc = stepX >> 1;
+    int xc = stepX >> 1;
 
     // calculate new y distances
-    for(sInt i = 0; i < nCenters; i++)
+    for(int i = 0; i < nCenters; i++)
     {
-      sInt dy = (yc - points[i].y) & (scale - 1);
+      int dy = (yc - points[i].y) & (scale - 1);
       points[i].distY = sSquare(min(dy, scale - dy));
     }
 
     // (insertion) sort by y-distance
-    for(sInt i = 1; i < nCenters; i++)
+    for(int i = 1; i < nCenters; i++)
     {
       CellPoint v = points[i];
-      sInt j = i;
+      int j = i;
 
       while(j && points[j - 1].distY > v.distY)
       {
@@ -698,15 +686,15 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       points[j] = v;
     }
 
-    sInt best, best2;
-    sInt besti, best2i;
+    int best, best2;
+    int besti, best2i;
 
     best = best2 = sSquare(scale);
     besti = best2i = -1;
 
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
-      sInt t, dx;
+      int t, dx;
 
       // update "best point" stats
       if(besti != -1 && best2i != -1)
@@ -725,12 +713,12 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       }
 
       // search for better points
-      for(sInt i = 0; i<nCenters && best2> points[i].distY; i++)
+      for(int i = 0; i<nCenters && best2> points[i].distY; i++)
       {
-        sInt dx = (xc - points[i].x) & (scale - 1);
+        int dx = (xc - points[i].x) & (scale - 1);
         dx = sSquare(min(dx, scale - dx));
 
-        sInt dist = dx + points[i].distY;
+        int dist = dx + points[i].distY;
 
         if(dist < best)
         {
@@ -750,13 +738,13 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       sF32 d0 = sqrt(best) / scale;
 
       if((mode & 1) == CellInner) // inner
-        t = clamp<sInt>(d0 * amp, 0, 1 << 24);
+        t = clamp<int>(d0 * amp, 0, 1 << 24);
       else // outer
       {
         sF32 d1 = sqrt(best2) / scale;
 
         if(d0 + d1 > 0.0f)
-          t = clamp<sInt>(d0 / (d1 + d0) * 2 * amp, 0, 1 << 24);
+          t = clamp<int>(d0 / (d1 + d0) * 2 * amp, 0, 1 << 24);
         else
           t = 0;
       }
@@ -774,20 +762,20 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
 
 void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, bool clampPremult)
 {
-  sInt m[4][4];
+  int m[4][4];
 
   assert(SameSize(x));
 
-  for(sInt i = 0; i < 4; i++)
+  for(int i = 0; i < 4; i++)
   {
-    for(sInt j = 0; j < 4; j++)
+    for(int j = 0; j < 4; j++)
     {
       assert(matrix[i][j] >= -127.0f && matrix[i][j] <= 127.0f);
       m[i][j] = matrix[i][j] * 65536.0f;
     }
   }
 
-  for(sInt i = 0; i < NPixels; i++)
+  for(int i = 0; i < NPixels; i++)
   {
     auto& out = Data[i];
     auto in = x.Data[i];
@@ -799,41 +787,41 @@ void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, boo
 
     if(clampPremult)
     {
-      out.a = clamp<sInt>(a, 0, 65535);
-      out.r = clamp<sInt>(r, 0, out.a);
-      out.g = clamp<sInt>(g, 0, out.a);
-      out.b = clamp<sInt>(b, 0, out.a);
+      out.a = clamp<int>(a, 0, 65535);
+      out.r = clamp<int>(r, 0, out.a);
+      out.g = clamp<int>(g, 0, out.a);
+      out.b = clamp<int>(b, 0, out.a);
     }
     else
     {
-      out.r = clamp<sInt>(r, 0, 65535);
-      out.g = clamp<sInt>(g, 0, 65535);
-      out.b = clamp<sInt>(b, 0, 65535);
-      out.a = clamp<sInt>(a, 0, 65535);
+      out.r = clamp<int>(r, 0, 65535);
+      out.g = clamp<int>(g, 0, 65535);
+      out.b = clamp<int>(b, 0, 65535);
+      out.a = clamp<int>(a, 0, 65535);
     }
   }
 }
 
-void GenTexture::CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, sInt mode)
+void GenTexture::CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, int mode)
 {
-  sInt scaleX = 1 << (24 - ShiftX);
-  sInt scaleY = 1 << (24 - ShiftY);
+  int scaleX = 1 << (24 - ShiftX);
+  int scaleY = 1 << (24 - ShiftY);
 
-  sInt dudx = matrix[0][0] * scaleX;
-  sInt dudy = matrix[0][1] * scaleY;
-  sInt dvdx = matrix[1][0] * scaleX;
-  sInt dvdy = matrix[1][1] * scaleY;
+  int dudx = matrix[0][0] * scaleX;
+  int dudy = matrix[0][1] * scaleY;
+  int dvdx = matrix[1][0] * scaleX;
+  int dvdy = matrix[1][1] * scaleY;
 
-  sInt u0 = matrix[0][3] * (1 << 24) + ((dudx + dudy) >> 1);
-  sInt v0 = matrix[1][3] * (1 << 24) + ((dvdx + dvdy) >> 1);
+  int u0 = matrix[0][3] * (1 << 24) + ((dudx + dudy) >> 1);
+  int v0 = matrix[1][3] * (1 << 24) + ((dvdx + dvdy) >> 1);
   Pixel* out = Data;
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    sInt u = u0;
-    sInt v = v0;
+    int u = u0;
+    int v = v0;
 
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
       in.SampleFiltered(*out, u, v, mode);
 
@@ -851,7 +839,7 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
 {
   assert(SameSize(inTex));
 
-  for(sInt i = 0; i < NPixels; i++)
+  for(int i = 0; i < NPixels; i++)
   {
     const Pixel& in = inTex.Data[i];
     Pixel& out = Data[i];
@@ -872,7 +860,7 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
     else if(in.a) // alpha!=0
     {
       Pixel colR, colG, colB;
-      sU32 invA = (65535U << 16) / in.a;
+      uint32_t invA = (65535U << 16) / in.a;
 
       mapR.SampleGradient(colR, UMulShift8(min(in.r, in.a), invA));
       mapG.SampleGradient(colG, UMulShift8(min(in.g, in.a), invA));
@@ -888,29 +876,29 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
   }
 }
 
-void GenTexture::CoordRemap(const GenTexture& in, const GenTexture& remapTex, sF32 strengthU, sF32 strengthV, sInt mode)
+void GenTexture::CoordRemap(const GenTexture& in, const GenTexture& remapTex, sF32 strengthU, sF32 strengthV, int mode)
 {
   assert(SameSize(remapTex));
 
   const Pixel* remap = remapTex.Data;
   Pixel* out = Data;
 
-  sInt u0 = MinX;
-  sInt v0 = MinY;
-  sInt scaleU = (1 << 24) * strengthU;
-  sInt scaleV = (1 << 24) * strengthV;
-  sInt stepU = 1 << (24 - ShiftX);
-  sInt stepV = 1 << (24 - ShiftY);
+  int u0 = MinX;
+  int v0 = MinY;
+  int scaleU = (1 << 24) * strengthU;
+  int scaleV = (1 << 24) * strengthV;
+  int stepU = 1 << (24 - ShiftX);
+  int stepV = 1 << (24 - ShiftY);
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    sInt u = u0;
-    sInt v = v0;
+    int u = u0;
+    int v = v0;
 
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
-      sInt dispU = u + MulShift16(scaleU, (remap->r - 32768) * 2);
-      sInt dispV = v + MulShift16(scaleV, (remap->g - 32768) * 2);
+      int dispU = u + MulShift16(scaleU, (remap->r - 32768) * 2);
+      int dispV = v + MulShift16(scaleV, (remap->g - 32768) * 2);
       in.SampleFiltered(*out, dispU, dispV, mode);
 
       u += stepU;
@@ -928,19 +916,19 @@ void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
 
   Pixel* out = Data;
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
-      sInt dx2 = in.Data[y * XRes + ((x + 1) & (XRes - 1))].r - in.Data[y * XRes + ((x - 1) & (XRes - 1))].r;
-      sInt dy2 = in.Data[x + ((y + 1) & (YRes - 1)) * XRes].r - in.Data[x + ((y - 1) & (YRes - 1)) * XRes].r;
+      int dx2 = in.Data[y * XRes + ((x + 1) & (XRes - 1))].r - in.Data[y * XRes + ((x - 1) & (XRes - 1))].r;
+      int dy2 = in.Data[x + ((y + 1) & (YRes - 1)) * XRes].r - in.Data[x + ((y - 1) & (YRes - 1)) * XRes].r;
       sF32 dx = dx2 * strength / (2 * 65535.0f);
       sF32 dy = dy2 * strength / (2 * 65535.0f);
       switch(op)
       {
       case DeriveGradient:
-        out->r = clamp<sInt>(dx * 32768.0f + 32768.0f, 0, 65535);
-        out->g = clamp<sInt>(dy * 32768.0f + 32768.0f, 0, 65535);
+        out->r = clamp<int>(dx * 32768.0f + 32768.0f, 0, 65535);
+        out->g = clamp<int>(dy * 32768.0f + 32768.0f, 0, 65535);
         out->b = 0;
         out->a = 65535;
         break;
@@ -950,9 +938,9 @@ void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
           // (1 0 dx)^T x (0 1 dy)^T = (-dx -dy 1)
           sF32 scale = 32768.0f * sFInvSqrt(1.0f + dx * dx + dy * dy);
 
-          out->r = clamp<sInt>(-dx * scale + 32768.0f, 0, 65535);
-          out->g = clamp<sInt>(-dy * scale + 32768.0f, 0, 65535);
-          out->b = clamp<sInt>(scale + 32768.0f, 0, 65535);
+          out->r = clamp<int>(-dx * scale + 32768.0f, 0, 65535);
+          out->g = clamp<int>(-dy * scale + 32768.0f, 0, 65535);
+          out->b = clamp<int>(scale + 32768.0f, 0, 65535);
           out->a = 65535;
         }
         break;
@@ -964,7 +952,7 @@ void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
 }
 
 // Wrap computation on pixel coordinates
-static sInt WrapCoord(sInt x, sInt width, sInt mode)
+static int WrapCoord(int x, int width, int mode)
 {
   if(mode == 0) // wrap
     return x & (width - 1);
@@ -973,33 +961,33 @@ static sInt WrapCoord(sInt x, sInt width, sInt mode)
 }
 
 // Size is half of edge length in pixels, 26.6 fixed point
-static void Blur1DBuffer(Pixel* dst, const Pixel* src, sInt width, sInt sizeFixed, sInt wrapMode)
+static void Blur1DBuffer(Pixel* dst, const Pixel* src, int width, int sizeFixed, int wrapMode)
 {
   assert(sizeFixed > 32); // kernel should be wider than one pixel
-  sInt frac = (sizeFixed - 32) & 63;
-  sInt offset = (sizeFixed + 32) >> 6;
+  int frac = (sizeFixed - 32) & 63;
+  int offset = (sizeFixed + 32) >> 6;
 
   assert(((offset - 1) * 64 + frac + 32) == sizeFixed);
-  sU32 denom = sizeFixed * 2;
-  sU32 bias = denom / 2;
+  uint32_t denom = sizeFixed * 2;
+  uint32_t bias = denom / 2;
 
   // initialize accumulators
-  sU32 accu[4];
+  uint32_t accu[4];
 
   if(wrapMode == 0) // wrap around
   {
     // leftmost and rightmost pixels (the partially covered ones)
-    sInt xl = WrapCoord(-offset, width, wrapMode);
-    sInt xr = WrapCoord(offset, width, wrapMode);
+    int xl = WrapCoord(-offset, width, wrapMode);
+    int xr = WrapCoord(offset, width, wrapMode);
     accu[0] = frac * (src[xl].r + src[xr].r) + bias;
     accu[1] = frac * (src[xl].g + src[xr].g) + bias;
     accu[2] = frac * (src[xl].b + src[xr].b) + bias;
     accu[3] = frac * (src[xl].a + src[xr].a) + bias;
 
     // inner part of filter kernel
-    for(sInt x = -offset + 1; x <= offset - 1; x++)
+    for(int x = -offset + 1; x <= offset - 1; x++)
     {
-      sInt xc = WrapCoord(x, width, wrapMode);
+      int xc = WrapCoord(x, width, wrapMode);
 
       accu[0] += src[xc].r << 6;
       accu[1] += src[xc].g << 6;
@@ -1016,16 +1004,16 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, sInt width, sInt sizeFixe
     accu[3] = src[0].a * (sizeFixed + 32) + bias;
 
     // rightmost pixel
-    sInt xr = WrapCoord(offset, width, wrapMode);
+    int xr = WrapCoord(offset, width, wrapMode);
     accu[0] += frac * src[xr].r;
     accu[1] += frac * src[xr].g;
     accu[2] += frac * src[xr].b;
     accu[3] += frac * src[xr].a;
 
     // inner part of filter kernel (the right half)
-    for(sInt x = 1; x <= offset - 1; x++)
+    for(int x = 1; x <= offset - 1; x++)
     {
-      sInt xc = WrapCoord(x, width, wrapMode);
+      int xc = WrapCoord(x, width, wrapMode);
 
       accu[0] += src[xc].r << 6;
       accu[1] += src[xc].g << 6;
@@ -1035,7 +1023,7 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, sInt width, sInt sizeFixe
   }
 
   // generate output pixels
-  for(sInt x = 0; x < width; x++)
+  for(int x = 0; x < width; x++)
   {
     // write out state of accumulator
     dst[x].r = accu[0] / denom;
@@ -1044,10 +1032,10 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, sInt width, sInt sizeFixe
     dst[x].a = accu[3] / denom;
 
     // update accumulator
-    sInt xl0 = WrapCoord(x - offset + 0, width, wrapMode);
-    sInt xl1 = WrapCoord(x - offset + 1, width, wrapMode);
-    sInt xr0 = WrapCoord(x + offset + 0, width, wrapMode);
-    sInt xr1 = WrapCoord(x + offset + 1, width, wrapMode);
+    int xl0 = WrapCoord(x - offset + 0, width, wrapMode);
+    int xl1 = WrapCoord(x - offset + 1, width, wrapMode);
+    int xr0 = WrapCoord(x + offset + 0, width, wrapMode);
+    int xr1 = WrapCoord(x + offset + 1, width, wrapMode);
 
     accu[0] += 64 * (src[xr0].r - src[xl1].r) + frac * (src[xr1].r - src[xr0].r - src[xl0].r + src[xl1].r);
     accu[1] += 64 * (src[xr0].g - src[xl1].g) + frac * (src[xr1].g - src[xr0].g - src[xl0].g + src[xl1].g);
@@ -1056,12 +1044,12 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, sInt width, sInt sizeFixe
   }
 }
 
-void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt order, sInt wrapMode)
+void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order, int wrapMode)
 {
   assert(SameSize(inImg));
 
-  sInt sizePixX = clamp(sizex, 0.0f, 1.0f) * 64 * inImg.XRes / 2;
-  sInt sizePixY = clamp(sizey, 0.0f, 1.0f) * 64 * inImg.YRes / 2;
+  int sizePixX = clamp(sizex, 0.0f, 1.0f) * 64 * inImg.XRes / 2;
+  int sizePixY = clamp(sizey, 0.0f, 1.0f) * 64 * inImg.YRes / 2;
 
   // no blur at all? just copy!
   if(order < 1 || (sizePixX <= 32 && sizePixY <= 32))
@@ -1069,7 +1057,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
   else
   {
     // allocate pixel buffers
-    sInt bufSize = max(XRes, YRes);
+    int bufSize = max(XRes, YRes);
     Pixel* buf1 = new Pixel[bufSize];
     Pixel* buf2 = new Pixel[bufSize];
     const GenTexture* in = &inImg;
@@ -1078,13 +1066,13 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
     if(sizePixX > 32)
     {
       // go through image row by row
-      for(sInt y = 0; y < YRes; y++)
+      for(int y = 0; y < YRes; y++)
       {
         // copy pixels into buffer 1
         memcpy(buf1, &in->Data[y * XRes], XRes * sizeof(Pixel));
 
         // blur order times, ping-ponging between buffers
-        for(sInt i = 0; i < order; i++)
+        for(int i = 0; i < order; i++)
         {
           Blur1DBuffer(buf2, buf1, XRes, sizePixX, (wrapMode & ClampU) ? 1 : 0);
           swap(buf1, buf2);
@@ -1101,20 +1089,20 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
     if(sizePixY > 32)
     {
       // go through image column by column
-      for(sInt x = 0; x < XRes; x++)
+      for(int x = 0; x < XRes; x++)
       {
         // copy pixels into buffer 1
         const Pixel* src = &in->Data[x];
         Pixel* dst = buf1;
 
-        for(sInt y = 0; y < YRes; y++)
+        for(int y = 0; y < YRes; y++)
         {
           *dst++ = *src;
           src += XRes;
         }
 
         // blur order times, ping-ponging between buffers
-        for(sInt i = 0; i < order; i++)
+        for(int i = 0; i < order; i++)
         {
           Blur1DBuffer(buf2, buf1, YRes, sizePixY, (wrapMode & ClampV) ? 1 : 0);
           swap(buf1, buf2);
@@ -1124,7 +1112,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
         src = buf1;
         dst = &Data[x];
 
-        for(sInt y = 0; y < YRes; y++)
+        for(int y = 0; y < YRes; y++)
         {
           *dst = *src++;
           dst += XRes;
@@ -1142,7 +1130,7 @@ void GenTexture::Ternary(const GenTexture& in1Tex, const GenTexture& in2Tex, con
 {
   assert(SameSize(in1Tex) && SameSize(in2Tex) && SameSize(in3Tex));
 
-  for(sInt i = 0; i < NPixels; i++)
+  for(int i = 0; i < NPixels; i++)
   {
     Pixel& out = Data[i];
     const Pixel& in1 = in1Tex.Data[i];
@@ -1164,7 +1152,7 @@ void GenTexture::Ternary(const GenTexture& in1Tex, const GenTexture& in2Tex, con
   }
 }
 
-void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, sInt mode)
+void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
 {
   assert(SameSize(bgTex));
 
@@ -1173,10 +1161,10 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
     *this = bgTex;
 
   // calculate bounding rect
-  sInt minX = max<sInt>(0, floor((orgx + min(ux, 0.0f) + min(vx, 0.0f)) * XRes));
-  sInt minY = max<sInt>(0, floor((orgy + min(uy, 0.0f) + min(vy, 0.0f)) * YRes));
-  sInt maxX = min<sInt>(XRes - 1, ceil((orgx + max(ux, 0.0f) + max(vx, 0.0f)) * XRes));
-  sInt maxY = min<sInt>(YRes - 1, ceil((orgy + max(uy, 0.0f) + max(vy, 0.0f)) * YRes));
+  int minX = max<int>(0, floor((orgx + min(ux, 0.0f) + min(vx, 0.0f)) * XRes));
+  int minY = max<int>(0, floor((orgy + min(uy, 0.0f) + min(vy, 0.0f)) * YRes));
+  int maxX = min<int>(XRes - 1, ceil((orgx + max(ux, 0.0f) + max(vx, 0.0f)) * XRes));
+  int maxY = min<int>(YRes - 1, ceil((orgy + max(uy, 0.0f) + max(vy, 0.0f)) * YRes));
 
   // solve for u0,v0 and deltas (Cramer's rule)
   sF32 detM = ux * vy - uy * vx;
@@ -1187,25 +1175,25 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
   sF32 invM = (1 << 24) / detM;
   sF32 rmx = (minX + 0.5f) / XRes - orgx;
   sF32 rmy = (minY + 0.5f) / YRes - orgy;
-  sInt u0 = (rmx * vy - rmy * vx) * invM;
-  sInt v0 = (ux * rmy - uy * rmx) * invM;
-  sInt dudx = vy * invM / XRes;
-  sInt dvdx = -uy * invM / XRes;
-  sInt dudy = -vx * invM / YRes;
-  sInt dvdy = ux * invM / YRes;
+  int u0 = (rmx * vy - rmy * vx) * invM;
+  int v0 = (ux * rmy - uy * rmx) * invM;
+  int dudx = vy * invM / XRes;
+  int dvdx = -uy * invM / XRes;
+  int dudy = -vx * invM / YRes;
+  int dvdy = ux * invM / YRes;
 
-  for(sInt y = minY; y <= maxY; y++)
+  for(int y = minY; y <= maxY; y++)
   {
     Pixel* out = &Data[y * XRes + minX];
-    sInt u = u0;
-    sInt v = v0;
+    int u = u0;
+    int v = v0;
 
-    for(sInt x = minX; x <= maxX; x++)
+    for(int x = minX; x <= maxX; x++)
     {
       if(u >= 0 && u < 0x1000000 && v >= 0 && v < 0x1000000)
       {
         Pixel in;
-        sInt transIn, transOut;
+        int transIn, transOut;
 
         inTex.SampleFiltered(in, u, v, ClampU | ClampV | ((mode & 1) ? FilterBilinear : FilterNearest));
         switch(op)
@@ -1218,10 +1206,10 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
           break;
 
         case CombineSub:
-          out->r = max<sInt>(out->r - in.r, 0);
-          out->g = max<sInt>(out->g - in.g, 0);
-          out->b = max<sInt>(out->b - in.b, 0);
-          out->a = max<sInt>(out->a - in.a, 0);
+          out->r = max<int>(out->r - in.r, 0);
+          out->g = max<int>(out->g - in.g, 0);
+          out->b = max<int>(out->b - in.b, 0);
+          out->a = max<int>(out->a - in.a, 0);
           break;
 
         case CombineMulC:
@@ -1338,9 +1326,9 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
   const Pixel* surf = surface.Data;
   const Pixel* normal = normals.Data;
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
       // determine vectors to light
       if(!directional)
@@ -1406,9 +1394,9 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
         if(falloffMap)
           addTerm.CompositeMulC(falloff);
 
-        out->r = clamp<sInt>(out->r + addTerm.r, 0, out->a);
-        out->g = clamp<sInt>(out->g + addTerm.g, 0, out->a);
-        out->b = clamp<sInt>(out->b + addTerm.b, 0, out->a);
+        out->r = clamp<int>(out->r + addTerm.r, 0, out->a);
+        out->g = clamp<int>(out->g + addTerm.g, 0, out->a);
+        out->b = clamp<int>(out->b + addTerm.b, 0, out->a);
       }
 
       out++;
@@ -1418,15 +1406,15 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
   }
 }
 
-void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput* inputs, sInt nInputs)
+void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput* inputs, int nInputs)
 {
-  sInt w[256], uo[256], vo[256];
+  int w[256], uo[256], vo[256];
 
   assert(nInputs <= 255);
   assert(constWeight >= -127.0f && constWeight <= 127.0f);
 
   // convert weights and offsets to fixed point
-  for(sInt i = 0; i < nInputs; i++)
+  for(int i = 0; i < nInputs; i++)
   {
     assert(inputs[i].Weight >= -127.0f && inputs[i].Weight <= 127.0f);
     assert(inputs[i].UShift >= -127.0f && inputs[i].UShift <= 127.0f);
@@ -1438,7 +1426,7 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
   }
 
   // compute preweighted constant color
-  sInt c_r, c_g, c_b, c_a, t;
+  int c_r, c_g, c_b, c_a, t;
 
   t = constWeight * 65536.0f;
   c_r = MulShift16(t, color.r);
@@ -1447,20 +1435,20 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
   c_a = MulShift16(t, color.a);
 
   // calculate output image
-  sInt u0 = MinX;
-  sInt v0 = MinY;
-  sInt stepU = 1 << (24 - ShiftX);
-  sInt stepV = 1 << (24 - ShiftY);
+  int u0 = MinX;
+  int v0 = MinY;
+  int stepU = 1 << (24 - ShiftX);
+  int stepV = 1 << (24 - ShiftY);
   Pixel* out = Data;
 
-  for(sInt y = 0; y < YRes; y++)
+  for(int y = 0; y < YRes; y++)
   {
-    sInt u = u0;
-    sInt v = v0;
+    int u = u0;
+    int v = v0;
 
-    for(sInt x = 0; x < XRes; x++)
+    for(int x = 0; x < XRes; x++)
     {
-      sInt acc_r, acc_g, acc_b, acc_a;
+      int acc_r, acc_g, acc_b, acc_a;
 
       // initialize accumulator with start value
       acc_r = c_r;
@@ -1469,7 +1457,7 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
       acc_a = c_a;
 
       // accumulate inputs
-      for(sInt j = 0; j < nInputs; j++)
+      for(int j = 0; j < nInputs; j++)
       {
         const LinearInput& in = inputs[j];
         Pixel inPix;
