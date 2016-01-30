@@ -26,6 +26,7 @@ import dashboard_picture;
 import gentexture;
 
 static __gshared GenTexture* g_Texture;
+static __gshared GenTexture*[16] g_Textures;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ void op_texture(EditionState state, Value[] values)
   }
 }
 
-void op_save(EditionState state, Value[] a)
+void op_display(EditionState state, Value[] a)
 {
   auto pic = new Picture;
   const w = cast(int)g_Texture.XRes;
@@ -67,9 +68,25 @@ void op_save(EditionState state, Value[] a)
   state.board = pic;
 }
 
+void op_store(Picture, float fIndex)
+{
+  auto id = clamp(cast(int)fIndex, 0, int(g_Textures.length));
+
+  destroy(g_Textures[id]);
+  g_Textures[id] = cloneTexture(g_Texture);
+}
+
+void op_load(Picture, float fIndex)
+{
+  auto id = clamp(cast(int)fIndex, 0, int(g_Textures.length));
+
+  destroy(g_Texture);
+  g_Texture = cloneTexture(g_Textures[id]);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-void op_noise(Picture pic, float freqx, float freqy, float octaves, float falloff)
+void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
 {
   auto grad = GenTexture(2, 1);
   grad.Data[0].Init(0xffffffff);
@@ -78,7 +95,7 @@ void op_noise(Picture pic, float freqx, float freqy, float octaves, float fallof
   g_Texture.Noise(grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
 }
 
-void op_derive(Picture pic, float fop, float strength)
+void op_derive(Picture, float fop, float strength)
 {
   auto oldTexture = g_Texture;
   g_Texture = cloneTexture(oldTexture);
@@ -104,7 +121,7 @@ T floatToEnum(T)(float input)
   return cast(T) clamp(cast(int)input, min, max);
 }
 
-void op_voronoi(Picture pic, float intensity, float fmaxCount, float minDist)
+void op_voronoi(Picture, float intensity, float fmaxCount, float minDist)
 {
   Random gen;
 
@@ -167,7 +184,9 @@ void op_voronoi(Picture pic, float intensity, float fmaxCount, float minDist)
 static this()
 {
   g_Operations["texture"] = RealizeFunc("txt", &op_texture);
-  g_Operations["save"] = RealizeFunc("txt", &op_save);
+  g_Operations["display"] = RealizeFunc("txt", &op_display);
+  registerOperator!(op_store, "txt", "tstore")();
+  registerOperator!(op_load, "txt", "tload")();
   registerOperator!(op_noise, "txt", "tnoise")();
   registerOperator!(op_derive, "txt", "tderive")();
   registerOperator!(op_voronoi, "txt", "tvoronoi")();
