@@ -198,7 +198,7 @@ void op_mix(Picture, int idx, float alpha)
 
 int clampTextureIndex(int idx)
 {
-  return clamp(idx, 0, int(g_Textures.length));
+  return clamp(idx, 0, int(g_Textures.length-1));
 }
 
 gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
