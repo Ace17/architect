@@ -6,6 +6,8 @@
  */
 import std.traits;
 import std.string;
+import std.conv;
+import std.math;
 
 import dashboard;
 import editlist;
@@ -71,6 +73,10 @@ void registerOperator(alias F, string cat, string name)()
       else static if(is (typeof(arg) == Vec3))
       {
         arg = asVec3(argVals[i]);
+      }
+      else static if(is (typeof(arg) == int))
+      {
+        arg = to!int (lrint(asReal(argVals[i])));
       }
       else
       {

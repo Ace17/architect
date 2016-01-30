@@ -68,25 +68,20 @@ void op_display(EditionState state, Value[] a)
   state.board = pic;
 }
 
-void op_store(Picture, float fIndex)
+void op_store(Picture, int idx)
 {
-  const id = toTextureIndex(fIndex);
+  const id = clampTextureIndex(idx);
 
   destroy(g_Textures[id]);
   g_Textures[id] = cloneTexture(g_Texture);
 }
 
-void op_load(Picture, float fIndex)
+void op_load(Picture, int idx)
 {
-  const id = toTextureIndex(fIndex);
+  const id = clampTextureIndex(idx);
 
   destroy(g_Texture);
   g_Texture = cloneTexture(g_Textures[id]);
-}
-
-int toTextureIndex(float fIndex)
-{
-  return clamp(cast(int)fIndex, 0, int(g_Textures.length));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -186,9 +181,9 @@ void op_voronoi(Picture, float intensity, float fmaxCount, float minDist)
   g_Texture.Cells(grad, centers.ptr, maxCount, 0.0f, CellMode.CellInner);
 }
 
-void op_mix(Picture, float fIndex, float alpha)
+void op_mix(Picture, int idx, float alpha)
 {
-  const otherId = toTextureIndex(fIndex);
+  const otherId = clampTextureIndex(idx);
   auto other = g_Textures[otherId];
 
   if(other is null)
@@ -199,6 +194,11 @@ void op_mix(Picture, float fIndex, float alpha)
 
   foreach(i, ref pel; g_Texture.Data[0 .. g_Texture.NPixels])
     pel = mix(pel, other.Data[i], alpha);
+}
+
+int clampTextureIndex(int idx)
+{
+  return clamp(idx, 0, int(g_Textures.length));
 }
 
 gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
