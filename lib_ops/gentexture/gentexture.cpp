@@ -1,4 +1,5 @@
 #include "gentexture.h"
+#include <algorithm>
 #include <vector>
 
 using namespace std;
@@ -370,14 +371,14 @@ void GenTexture::UpdateSize()
 
 void GenTexture::Swap(GenTexture& x)
 {
-  sSwap(Data, x.Data);
-  sSwap(XRes, x.XRes);
-  sSwap(YRes, x.YRes);
-  sSwap(NPixels, x.NPixels);
-  sSwap(ShiftX, x.ShiftX);
-  sSwap(ShiftY, x.ShiftY);
-  sSwap(MinX, x.MinX);
-  sSwap(MinY, x.MinY);
+  swap(Data, x.Data);
+  swap(XRes, x.XRes);
+  swap(YRes, x.YRes);
+  swap(NPixels, x.NPixels);
+  swap(ShiftX, x.ShiftX);
+  swap(ShiftY, x.ShiftY);
+  swap(MinX, x.MinX);
+  swap(MinY, x.MinY);
 }
 
 GenTexture & GenTexture::operator = (const GenTexture& x)
@@ -469,7 +470,7 @@ void GenTexture::Noise(const GenTexture& grad, sInt freqX, sInt freqY, sInt oct,
   if(mode & NoiseNormalize)
     scaling = (fadeoff - 1.0f) / (sFPow(fadeoff, oct) - 1.0f);
   else
-    scaling = sMin(1.0f, 1.0f / fadeoff);
+    scaling = min(1.0f, 1.0f / fadeoff);
 
   if(mode & NoiseAbs) // absolute mode
   {
@@ -530,10 +531,10 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
     *this = bgTex;
 
   // calculate bounding rect
-  sInt minX = sMax(0, int(floor((orgx - sFAbs(ux) - sFAbs(vx)) * XRes)));
-  sInt minY = sMax(0, int(floor((orgy - sFAbs(uy) - sFAbs(vy)) * YRes)));
-  sInt maxX = sMin(XRes - 1, int(ceil((orgx + sFAbs(ux) + sFAbs(vx)) * XRes)));
-  sInt maxY = sMin(YRes - 1, int(ceil((orgy + sFAbs(uy) + sFAbs(vy)) * YRes)));
+  sInt minX = max(0, int(floor((orgx - sFAbs(ux) - sFAbs(vx)) * XRes)));
+  sInt minY = max(0, int(floor((orgy - sFAbs(uy) - sFAbs(vy)) * YRes)));
+  sInt maxX = min(XRes - 1, int(ceil((orgx + sFAbs(ux) + sFAbs(vx)) * XRes)));
+  sInt maxY = min(YRes - 1, int(ceil((orgy + sFAbs(uy) + sFAbs(vy)) * YRes)));
 
   // solve for u0,v0 and deltas (cramer's rule)
   sF32 detM = ux * vy - uy * vx;
@@ -550,8 +551,8 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
   sInt dvdx = -uy * invM / XRes;
   sInt dudy = -vx * invM / YRes;
   sInt dvdy = ux * invM / YRes;
-  sInt ruf = sMin<sInt>(rectu * 65536.0f, 65535);
-  sInt rvf = sMin<sInt>(rectv * 65536.0f, 65535);
+  sInt ruf = min<sInt>(rectu * 65536.0f, 65535);
+  sInt rvf = min<sInt>(rectv * 65536.0f, 65535);
   sF32 gus = 1.0f / (65536.0f - ruf);
   sF32 gvs = 1.0f / (65536.0f - rvf);
 
@@ -567,8 +568,8 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
       {
         Pixel col;
 
-        sInt du = sMax(sAbs(u) - ruf, 0);
-        sInt dv = sMax(sAbs(v) - rvf, 0);
+        sInt du = max(sAbs(u) - ruf, 0);
+        sInt dv = max(sAbs(v) - rvf, 0);
 
         if(!du && !dv)
         {
@@ -640,7 +641,7 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
     for(sInt i = 0; i < nCenters; i++)
     {
       sInt dy = (yc - points[i].y) & (scale - 1);
-      points[i].distY = sSquare(sMin(dy, scale - dy));
+      points[i].distY = sSquare(min(dy, scale - dy));
     }
 
     // (insertion) sort by y-distance
@@ -672,15 +673,15 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       if(besti != -1 && best2i != -1)
       {
         dx = (xc - points[besti].x) & (scale - 1);
-        best = sSquare(sMin(dx, scale - dx)) + points[besti].distY;
+        best = sSquare(min(dx, scale - dx)) + points[besti].distY;
 
         dx = (xc - points[best2i].x) & (scale - 1);
-        best2 = sSquare(sMin(dx, scale - dx)) + points[best2i].distY;
+        best2 = sSquare(min(dx, scale - dx)) + points[best2i].distY;
 
         if(best2 < best)
         {
-          sSwap(best, best2);
-          sSwap(besti, best2i);
+          swap(best, best2);
+          swap(besti, best2i);
         }
       }
 
@@ -688,7 +689,7 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       for(sInt i = 0; i<nCenters && best2> points[i].distY; i++)
       {
         sInt dx = (xc - points[i].x) & (scale - 1);
-        dx = sSquare(sMin(dx, scale - dx));
+        dx = sSquare(min(dx, scale - dx));
 
         sInt dist = dx + points[i].distY;
 
@@ -824,9 +825,9 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
       mapG.SampleGradient(colG, (in.g << 8) + ((in.g + 128) >> 8));
       mapB.SampleGradient(colB, (in.b << 8) + ((in.b + 128) >> 8));
 
-      out.r = sMin(colR.r + colG.r + colB.r, 65535);
-      out.g = sMin(colR.g + colG.g + colB.g, 65535);
-      out.b = sMin(colR.b + colG.b + colB.b, 65535);
+      out.r = min(colR.r + colG.r + colB.r, 65535);
+      out.g = min(colR.g + colG.g + colB.g, 65535);
+      out.b = min(colR.b + colG.b + colB.b, 65535);
       out.a = in.a;
     }
     else if(in.a) // alpha!=0
@@ -834,13 +835,13 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
       Pixel colR, colG, colB;
       sU32 invA = (65535U << 16) / in.a;
 
-      mapR.SampleGradient(colR, UMulShift8(sMin(in.r, in.a), invA));
-      mapG.SampleGradient(colG, UMulShift8(sMin(in.g, in.a), invA));
-      mapB.SampleGradient(colB, UMulShift8(sMin(in.b, in.a), invA));
+      mapR.SampleGradient(colR, UMulShift8(min(in.r, in.a), invA));
+      mapG.SampleGradient(colG, UMulShift8(min(in.g, in.a), invA));
+      mapB.SampleGradient(colB, UMulShift8(min(in.b, in.a), invA));
 
-      out.r = MulIntens(sMin(colR.r + colG.r + colB.r, 65535), in.a);
-      out.g = MulIntens(sMin(colR.g + colG.g + colB.g, 65535), in.a);
-      out.b = MulIntens(sMin(colR.b + colG.b + colB.b, 65535), in.a);
+      out.r = MulIntens(min(colR.r + colG.r + colB.r, 65535), in.a);
+      out.g = MulIntens(min(colR.g + colG.g + colB.g, 65535), in.a);
+      out.b = MulIntens(min(colR.b + colG.b + colB.b, 65535), in.a);
       out.a = in.a;
     }
     else // alpha==0
@@ -1029,7 +1030,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
   else
   {
     // allocate pixel buffers
-    sInt bufSize = sMax(XRes, YRes);
+    sInt bufSize = max(XRes, YRes);
     Pixel* buf1 = new Pixel[bufSize];
     Pixel* buf2 = new Pixel[bufSize];
     const GenTexture* in = &inImg;
@@ -1047,7 +1048,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
         for(sInt i = 0; i < order; i++)
         {
           Blur1DBuffer(buf2, buf1, XRes, sizePixX, (wrapMode & ClampU) ? 1 : 0);
-          sSwap(buf1, buf2);
+          swap(buf1, buf2);
         }
 
         // copy pixels back
@@ -1077,7 +1078,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
         for(sInt i = 0; i < order; i++)
         {
           Blur1DBuffer(buf2, buf1, YRes, sizePixY, (wrapMode & ClampV) ? 1 : 0);
-          sSwap(buf1, buf2);
+          swap(buf1, buf2);
         }
 
         // copy pixels back
@@ -1133,10 +1134,10 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
     *this = bgTex;
 
   // calculate bounding rect
-  sInt minX = sMax<sInt>(0, floor((orgx + sMin(ux, 0.0f) + sMin(vx, 0.0f)) * XRes));
-  sInt minY = sMax<sInt>(0, floor((orgy + sMin(uy, 0.0f) + sMin(vy, 0.0f)) * YRes));
-  sInt maxX = sMin<sInt>(XRes - 1, ceil((orgx + sMax(ux, 0.0f) + sMax(vx, 0.0f)) * XRes));
-  sInt maxY = sMin<sInt>(YRes - 1, ceil((orgy + sMax(uy, 0.0f) + sMax(vy, 0.0f)) * YRes));
+  sInt minX = max<sInt>(0, floor((orgx + min(ux, 0.0f) + min(vx, 0.0f)) * XRes));
+  sInt minY = max<sInt>(0, floor((orgy + min(uy, 0.0f) + min(vy, 0.0f)) * YRes));
+  sInt maxX = min<sInt>(XRes - 1, ceil((orgx + max(ux, 0.0f) + max(vx, 0.0f)) * XRes));
+  sInt maxY = min<sInt>(YRes - 1, ceil((orgy + max(uy, 0.0f) + max(vy, 0.0f)) * YRes));
 
   // solve for u0,v0 and deltas (Cramer's rule)
   sF32 detM = ux * vy - uy * vx;
@@ -1171,17 +1172,17 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
         switch(op)
         {
         case CombineAdd:
-          out->r = sMin(out->r + in.r, 65535);
-          out->g = sMin(out->g + in.g, 65535);
-          out->b = sMin(out->b + in.b, 65535);
-          out->a = sMin(out->a + in.a, 65535);
+          out->r = min(out->r + in.r, 65535);
+          out->g = min(out->g + in.g, 65535);
+          out->b = min(out->b + in.b, 65535);
+          out->a = min(out->a + in.a, 65535);
           break;
 
         case CombineSub:
-          out->r = sMax<sInt>(out->r - in.r, 0);
-          out->g = sMax<sInt>(out->g - in.g, 0);
-          out->b = sMax<sInt>(out->b - in.b, 0);
-          out->a = sMax<sInt>(out->a - in.a, 0);
+          out->r = max<sInt>(out->r - in.r, 0);
+          out->g = max<sInt>(out->g - in.g, 0);
+          out->b = max<sInt>(out->b - in.b, 0);
+          out->a = max<sInt>(out->a - in.a, 0);
           break;
 
         case CombineMulC:
@@ -1192,17 +1193,17 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
           break;
 
         case CombineMin:
-          out->r = sMin(out->r, in.r);
-          out->g = sMin(out->g, in.g);
-          out->b = sMin(out->b, in.b);
-          out->a = sMin(out->a, in.a);
+          out->r = min(out->r, in.r);
+          out->g = min(out->g, in.g);
+          out->b = min(out->b, in.b);
+          out->a = min(out->a, in.a);
           break;
 
         case CombineMax:
-          out->r = sMax(out->r, in.r);
-          out->g = sMax(out->g, in.g);
-          out->b = sMax(out->b, in.b);
-          out->a = sMax(out->a, in.a);
+          out->r = max(out->r, in.r);
+          out->g = max(out->g, in.g);
+          out->b = max(out->b, in.b);
+          out->a = max(out->a, in.a);
           break;
 
         case CombineSetAlpha:
@@ -1243,16 +1244,16 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
           break;
 
         case CombineDarken:
-          out->r += in.r - sMax(MulIntens(in.r, out->a), MulIntens(out->r, in.a));
-          out->g += in.g - sMax(MulIntens(in.g, out->a), MulIntens(out->g, in.a));
-          out->b += in.b - sMax(MulIntens(in.b, out->a), MulIntens(out->b, in.a));
+          out->r += in.r - max(MulIntens(in.r, out->a), MulIntens(out->r, in.a));
+          out->g += in.g - max(MulIntens(in.g, out->a), MulIntens(out->g, in.a));
+          out->b += in.b - max(MulIntens(in.b, out->a), MulIntens(out->b, in.a));
           out->a += MulIntens(in.a, 65535 - out->a);
           break;
 
         case CombineLighten:
-          out->r += in.r - sMin(MulIntens(in.r, out->a), MulIntens(out->r, in.a));
-          out->g += in.g - sMin(MulIntens(in.g, out->a), MulIntens(out->g, in.a));
-          out->b += in.b - sMin(MulIntens(in.b, out->a), MulIntens(out->b, in.a));
+          out->r += in.r - min(MulIntens(in.r, out->a), MulIntens(out->r, in.a));
+          out->g += in.g - min(MulIntens(in.g, out->a), MulIntens(out->g, in.a));
+          out->b += in.b - min(MulIntens(in.b, out->a), MulIntens(out->b, in.a));
           out->a += MulIntens(in.a, 65535 - out->a);
           break;
         }
@@ -1335,12 +1336,12 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
 
       if(falloffMap)
       {
-        sF32 spotTerm = sMax(dx * L[0] + dy * L[1] + dz * L[2], 0.0f);
+        sF32 spotTerm = max(dx * L[0] + dy * L[1] + dz * L[2], 0.0f);
         falloffMap->SampleGradient(falloff, spotTerm * (1 << 24));
       }
 
       // lighting calculation
-      sF32 NdotL = sMax(N[0] * L[0] + N[1] * L[1] + N[2] * L[2], 0.0f);
+      sF32 NdotL = max(N[0] * L[0] + N[1] * L[1] + N[2] * L[2], 0.0f);
       Pixel ambDiffuse;
 
       ambDiffuse.r = NdotL * diffuse.r;
@@ -1360,7 +1361,7 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
       if(specular)
       {
         Pixel addTerm;
-        sF32 NdotH = sMax(N[0] * H[0] + N[1] * H[1] + N[2] * H[2], 0.0f);
+        sF32 NdotH = max(N[0] * H[0] + N[1] * H[1] + N[2] * H[2], 0.0f);
         specular->SampleGradient(addTerm, NdotH * (1 << 24));
 
         if(falloffMap)

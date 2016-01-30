@@ -28,42 +28,9 @@ typedef double sF64;  // use as needed
 /****************************************************************************/
 
 template<class Type>
-inline Type sMin(Type a, Type b)
-{
-  return (a < b) ? a : b;
-}
-
-template<class Type>
-inline Type sMax(Type a, Type b)
-{
-  return (a > b) ? a : b;
-}
-
-template<class Type>
-inline Type sSign(Type a)
-{
-  return (a == 0) ? Type(0) : (a > 0) ? Type(1) : Type(-1);
-}
-
-template<class Type>
 inline Type sClamp(Type a, Type min, Type max)
 {
   return (a >= max) ? max : (a <= min) ? min : a;
-}
-
-template<class Type>
-inline void sSwap(Type& a, Type& b)
-{
-  Type s;
-  s = a;
-  a = b;
-  b = s;
-}
-
-template<class Type>
-inline Type sAlign(Type a, sInt b)
-{
-  return (Type)((((sDInt)a) + b - 1) & (~(b - 1)));
 }
 
 template<class Type>
