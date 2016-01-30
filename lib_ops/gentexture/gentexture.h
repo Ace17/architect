@@ -26,13 +26,6 @@ struct Pixel
   void CompositeScreen(Pixel b);
 };
 
-inline Pixel Color(int r, int g, int b, int a = 255)
-{
-  Pixel result;
-  result.Init(r, g, b, a);
-  return result;
-}
-
 // CellCenter. 2D pair of coordinates plus a cell color.
 struct CellCenter
 {
