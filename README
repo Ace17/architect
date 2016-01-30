@@ -23,11 +23,12 @@ Architect is written in the D programming language.
 Building
 --------
 
+Just type:
+$ make
+
 Requirements:
 - GtkD
-- GDC (GNU D Compiler)
-
-$ make
+- GDC (GNU D Compiler), version 5 minimum
 
 Usage example
 -------------
