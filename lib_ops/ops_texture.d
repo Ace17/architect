@@ -70,7 +70,7 @@ void op_display(EditionState state, Value[] a)
 
 void op_store(Picture, float fIndex)
 {
-  auto id = clamp(cast(int)fIndex, 0, int(g_Textures.length));
+  const id = toTextureIndex(fIndex);
 
   destroy(g_Textures[id]);
   g_Textures[id] = cloneTexture(g_Texture);
@@ -78,10 +78,15 @@ void op_store(Picture, float fIndex)
 
 void op_load(Picture, float fIndex)
 {
-  auto id = clamp(cast(int)fIndex, 0, int(g_Textures.length));
+  const id = toTextureIndex(fIndex);
 
   destroy(g_Texture);
   g_Texture = cloneTexture(g_Textures[id]);
+}
+
+int toTextureIndex(float fIndex)
+{
+  return clamp(cast(int)fIndex, 0, int(g_Textures.length));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -181,6 +186,31 @@ void op_voronoi(Picture, float intensity, float fmaxCount, float minDist)
   g_Texture.Cells(grad, centers.ptr, maxCount, 0.0f, CellMode.CellInner);
 }
 
+void op_mix(Picture, float fIndex, float alpha)
+{
+  const otherId = toTextureIndex(fIndex);
+  auto other = g_Textures[otherId];
+
+  if(other is null)
+    throw new Exception("No texture at this index");
+
+  if(other.NPixels != g_Texture.NPixels)
+    throw new Exception("Texture must have the same size");
+
+  foreach(i, ref pel; g_Texture.Data[0 .. g_Texture.NPixels])
+    pel = mix(pel, other.Data[i], alpha);
+}
+
+gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
+{
+  gentexture.Pixel result;
+  result.r = cast(ushort) blend(cast(float)A.r, cast(float)B.b, alpha);
+  result.g = cast(ushort) blend(cast(float)A.g, cast(float)B.g, alpha);
+  result.b = cast(ushort) blend(cast(float)A.b, cast(float)B.b, alpha);
+  result.a = cast(ushort) blend(cast(float)A.a, cast(float)B.a, alpha);
+  return result;
+}
+
 static this()
 {
   g_Operations["texture"] = RealizeFunc("txt", &op_texture);
@@ -190,5 +220,6 @@ static this()
   registerOperator!(op_noise, "txt", "tnoise")();
   registerOperator!(op_derive, "txt", "tderive")();
   registerOperator!(op_voronoi, "txt", "tvoronoi")();
+  registerOperator!(op_mix, "txt", "tmix")();
 }
 
