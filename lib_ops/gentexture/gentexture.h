@@ -7,18 +7,18 @@
 
 #pragma once
 
-#include "types.h"
+#include <cstdint>
 
 // Pixel. Uses whole 16bit value range (0-65535).
 // 0=>0.0, 65535=>1.0.
 struct Pixel
 {
-  sU16 r, g, b, a; // OpenGL byte order
+  uint16_t r, g, b, a; // OpenGL byte order
 
-  void Init(sU8 r, sU8 g, sU8 b, sU8 a);
-  void Init(sU32 rgba); // 0xaarrggbb (D3D style)
+  void Init(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+  void Init(uint32_t rgba); // 0xaarrggbb (D3D style)
 
-  void Lerp(sInt t, Pixel x, Pixel y); // t=0..65536
+  void Lerp(int t, Pixel x, Pixel y); // t=0..65536
 
   void CompositeAdd(Pixel b);
   void CompositeMulC(Pixel b);
@@ -29,7 +29,7 @@ struct Pixel
 // CellCenter. 2D pair of coordinates plus a cell color.
 struct CellCenter
 {
-  sF32 x, y;
+  float x, y;
   Pixel color;
 };
 
@@ -39,13 +39,13 @@ struct GenTexture;
 struct LinearInput
 {
   const GenTexture* Tex;    // the input texture
-  sF32 Weight;              // its weight
-  sF32 UShift, VShift;       // u/v translate parameter
-  sInt FilterMode;          // filtering mode (as in CoordMatrixTransform)
+  float Weight;              // its weight
+  float UShift, VShift;       // u/v translate parameter
+  int FilterMode;          // filtering mode (as in CoordMatrixTransform)
 };
 
 // Simple 4x4 matrix type
-typedef sF32 Matrix44[4][4];
+typedef float Matrix44[4][4];
 
 // X increases from 0 (left) to 1 (right)
 // Y increases from 0 (bottom) to 1 (top)
@@ -119,23 +119,23 @@ enum FilterMode
 struct GenTexture
 {
   Pixel* Data;    // pointer to pixel data.
-  sInt XRes;      // width of texture (must be a power of 2)
-  sInt YRes;      // height of texture (must be a power of 2)
-  sInt NPixels;   // width*height (number of pixels)
+  int XRes;      // width of texture (must be a power of 2)
+  int YRes;      // height of texture (must be a power of 2)
+  int NPixels;   // width*height (number of pixels)
 
-  sInt ShiftX;    // log2(XRes)
-  sInt ShiftY;    // log2(YRes)
-  sInt MinX;      // (1 << 24) / (2 * XRes) = Min X for clamp to edge
-  sInt MinY;      // (1 << 24) / (2 * YRes) = Min Y for clamp to edge
+  int ShiftX;    // log2(XRes)
+  int ShiftY;    // log2(YRes)
+  int MinX;      // (1 << 24) / (2 * XRes) = Min X for clamp to edge
+  int MinY;      // (1 << 24) / (2 * YRes) = Min Y for clamp to edge
 
   GenTexture();
-  GenTexture(sInt xres, sInt yres);
+  GenTexture(int xres, int yres);
   GenTexture(const GenTexture& x);
   ~GenTexture();
   void __ctor(int, int);
   void Free();
 
-  void Init(sInt xres, sInt yres);
+  void Init(int xres, int yres);
   void UpdateSize();
   void Swap(GenTexture& x);
 
@@ -144,28 +144,28 @@ struct GenTexture
   bool SameSize(const GenTexture& x) const;
 
   // Sampling helpers with filtering (coords are 1.7.24 fixed point)
-  void SampleNearest(Pixel& result, sInt x, sInt y, sInt wrapMode) const;
-  void SampleBilinear(Pixel& result, sInt x, sInt y, sInt wrapMode) const;
-  void SampleFiltered(Pixel& result, sInt x, sInt y, sInt filterMode) const;
-  void SampleGradient(Pixel& result, sInt x) const;
+  void SampleNearest(Pixel& result, int x, int y, int wrapMode) const;
+  void SampleBilinear(Pixel& result, int x, int y, int wrapMode) const;
+  void SampleFiltered(Pixel& result, int x, int y, int filterMode) const;
+  void SampleGradient(Pixel& result, int x) const;
 
   // Actual generator functions
-  void Noise(const GenTexture& grad, sInt freqX, sInt freqY, sInt oct, sF32 fadeoff, sInt seed, NoiseMode mode);
-  void GlowRect(const GenTexture& background, const GenTexture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv);
-  void Cells(const GenTexture& grad, const CellCenter* centers, sInt nCenters, sF32 amp, sInt mode);
+  void Noise(const GenTexture& grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
+  void GlowRect(const GenTexture& background, const GenTexture& grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
+  void Cells(const GenTexture& grad, const CellCenter* centers, int nCenters, float amp, int mode);
 
   // Filters
   void ColorMatrixTransform(const GenTexture& in, Matrix44& matrix, bool clampPremult);
-  void CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, sInt filterMode);
+  void CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, int filterMode);
   void ColorRemap(const GenTexture& in, const GenTexture& mapR, const GenTexture& mapG, const GenTexture& mapB);
-  void CoordRemap(const GenTexture& in, const GenTexture& remap, sF32 strengthU, sF32 strengthV, sInt filterMode);
-  void Derive(const GenTexture& in, DeriveOp op, sF32 strength);
-  void Blur(const GenTexture& in, sF32 sizex, sF32 sizey, sInt order, sInt mode);
+  void CoordRemap(const GenTexture& in, const GenTexture& remap, float strengthU, float strengthV, int filterMode);
+  void Derive(const GenTexture& in, DeriveOp op, float strength);
+  void Blur(const GenTexture& in, float sizex, float sizey, int order, int mode);
 
   // Combiners
   void Ternary(const GenTexture& in1, const GenTexture& in2, const GenTexture& in3, TernaryOp op);
-  void Paste(const GenTexture& background, const GenTexture& snippet, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, sInt mode);
-  void Bump(const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloff, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional);
-  void LinearCombine(Pixel color, sF32 constWeight, const LinearInput* inputs, sInt nInputs);
+  void Paste(const GenTexture& background, const GenTexture& snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
+  void Bump(const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
+  void LinearCombine(Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 };
 

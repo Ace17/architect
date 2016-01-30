@@ -1,8 +1,25 @@
 #include "gentexture.h"
 #include <algorithm>
+#include <cmath>
 #include <vector>
+#include <cassert>
+#include <cstring>
 
 using namespace std;
+
+typedef uint8_t sU8;   // for packed arrays
+typedef uint16_t sU16;  // for packed arrays
+typedef uint32_t sU32;  // for packed arrays and bitfields
+typedef uint64_t sU64;  // use as needed
+typedef int8_t sS8;   // for packed arrays
+typedef int16_t sS16;  // for packed arrays
+typedef int32_t sS32;  // for packed arrays
+typedef int64_t sS64;  // use as needed
+typedef int sInt;  // use this most
+typedef intptr_t sDInt; // type for pointer diff
+
+typedef float sF32;  // basic floatingpoint
+typedef double sF64;  // use as needed
 
 /****************************************************************************/
 /***                                                                      ***/
@@ -10,10 +27,32 @@ using namespace std;
 /***                                                                      ***/
 /****************************************************************************/
 
+template<class T>
+inline T sSquare(T a)
+{
+  return a * a;
+}
+
+inline sF64 sFInvSqrt(sF64 f)
+{
+  return 1.0 / sqrt(f);
+}
+
+inline sF64 sFPow(sF64 a, sF64 b)
+{
+  return pow(a, b);
+}
+
 // Return true if x is a power of 2, false otherwise
 static bool IsPowerOf2(sInt x)
 {
   return (x & (x - 1)) == 0;
+}
+
+template<class T>
+inline T clamp(T val, T min, T max)
+{
+  return (val >= max) ? max : (val <= min) ? min : val;
 }
 
 // Returns floor(log2(x))
@@ -258,10 +297,10 @@ void Pixel::Lerp(sInt t, Pixel x, Pixel y)
 
 void Pixel::CompositeAdd(Pixel x)
 {
-  r = sClamp<sInt>(r + x.r, 0, 65535);
-  g = sClamp<sInt>(g + x.g, 0, 65535);
-  b = sClamp<sInt>(b + x.b, 0, 65535);
-  a = sClamp<sInt>(a + x.a, 0, 65535);
+  r = clamp<sInt>(r + x.r, 0, 65535);
+  g = clamp<sInt>(g + x.g, 0, 65535);
+  b = clamp<sInt>(b + x.b, 0, 65535);
+  a = clamp<sInt>(a + x.a, 0, 65535);
 }
 
 void Pixel::CompositeMulC(Pixel x)
@@ -398,10 +437,10 @@ bool GenTexture::SameSize(const GenTexture& x) const
 void GenTexture::SampleNearest(Pixel& result, sInt x, sInt y, sInt wrapMode) const
 {
   if(wrapMode & 1)
-    x = sClamp(x, MinX, 0x1000000 - MinX);
+    x = clamp(x, MinX, 0x1000000 - MinX);
 
   if(wrapMode & 2)
-    y = sClamp(y, MinY, 0x1000000 - MinY);
+    y = clamp(y, MinY, 0x1000000 - MinY);
 
   x &= 0xffffff;
   y &= 0xffffff;
@@ -415,10 +454,10 @@ void GenTexture::SampleNearest(Pixel& result, sInt x, sInt y, sInt wrapMode) con
 void GenTexture::SampleBilinear(Pixel& result, sInt x, sInt y, sInt wrapMode) const
 {
   if(wrapMode & 1)
-    x = sClamp(x, MinX, 0x1000000 - MinX);
+    x = clamp(x, MinX, 0x1000000 - MinX);
 
   if(wrapMode & 2)
-    y = sClamp(y, MinY, 0x1000000 - MinY);
+    y = clamp(y, MinY, 0x1000000 - MinY);
 
   x = (x - MinX) & 0xffffff;
   y = (y - MinY) & 0xffffff;
@@ -446,7 +485,7 @@ void GenTexture::SampleFiltered(Pixel& result, sInt x, sInt y, sInt filterMode) 
 
 void GenTexture::SampleGradient(Pixel& result, sInt x) const
 {
-  x = sClamp(x, 0, 1 << 24);
+  x = clamp(x, 0, 1 << 24);
   x -= x >> ShiftX; // x=(1<<24) -> Take rightmost pixel
 
   sInt x0 = x >> (24 - ShiftX);
@@ -505,7 +544,7 @@ void GenTexture::Noise(const GenTexture& grad, sInt freqX, sInt freqY, sInt oct,
         sF32 nv = (mode & NoiseBandlimit) ? Noise2(px, py, mx, my, seed) : GNoise2(px, py, mx, my, seed);
 
         if(mode & NoiseAbs)
-          nv = sFAbs(nv);
+          nv = abs(nv);
 
         n += nv * s;
         s *= fadeoff;
@@ -531,10 +570,10 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
     *this = bgTex;
 
   // calculate bounding rect
-  sInt minX = max(0, int(floor((orgx - sFAbs(ux) - sFAbs(vx)) * XRes)));
-  sInt minY = max(0, int(floor((orgy - sFAbs(uy) - sFAbs(vy)) * YRes)));
-  sInt maxX = min(XRes - 1, int(ceil((orgx + sFAbs(ux) + sFAbs(vx)) * XRes)));
-  sInt maxY = min(YRes - 1, int(ceil((orgy + sFAbs(uy) + sFAbs(vy)) * YRes)));
+  sInt minX = max(0, int(floor((orgx - abs(ux) - abs(vx)) * XRes)));
+  sInt minY = max(0, int(floor((orgy - abs(uy) - abs(vy)) * YRes)));
+  sInt maxX = min(XRes - 1, int(ceil((orgx + abs(ux) + abs(vx)) * XRes)));
+  sInt maxY = min(YRes - 1, int(ceil((orgy + abs(uy) + abs(vy)) * YRes)));
 
   // solve for u0,v0 and deltas (cramer's rule)
   sF32 detM = ux * vy - uy * vx;
@@ -568,8 +607,8 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
       {
         Pixel col;
 
-        sInt du = max(sAbs(u) - ruf, 0);
-        sInt dv = max(sAbs(v) - rvf, 0);
+        sInt du = max(abs(u) - ruf, 0);
+        sInt dv = max(abs(v) - rvf, 0);
 
         if(!du && !dv)
         {
@@ -584,7 +623,7 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
 
           if(dist < 1.0f)
           {
-            grad.SampleGradient(col, (1 << 24) * sFSqrt(dist));
+            grad.SampleGradient(col, (1 << 24) * sqrt(dist));
             out->CompositeROver(col);
           }
         }
@@ -708,16 +747,16 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, sInt n
       }
 
       // color the pixel accordingly
-      sF32 d0 = sFSqrt(best) / scale;
+      sF32 d0 = sqrt(best) / scale;
 
       if((mode & 1) == CellInner) // inner
-        t = sClamp<sInt>(d0 * amp, 0, 1 << 24);
+        t = clamp<sInt>(d0 * amp, 0, 1 << 24);
       else // outer
       {
-        sF32 d1 = sFSqrt(best2) / scale;
+        sF32 d1 = sqrt(best2) / scale;
 
         if(d0 + d1 > 0.0f)
-          t = sClamp<sInt>(d0 / (d1 + d0) * 2 * amp, 0, 1 << 24);
+          t = clamp<sInt>(d0 / (d1 + d0) * 2 * amp, 0, 1 << 24);
         else
           t = 0;
       }
@@ -760,17 +799,17 @@ void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, boo
 
     if(clampPremult)
     {
-      out.a = sClamp<sInt>(a, 0, 65535);
-      out.r = sClamp<sInt>(r, 0, out.a);
-      out.g = sClamp<sInt>(g, 0, out.a);
-      out.b = sClamp<sInt>(b, 0, out.a);
+      out.a = clamp<sInt>(a, 0, 65535);
+      out.r = clamp<sInt>(r, 0, out.a);
+      out.g = clamp<sInt>(g, 0, out.a);
+      out.b = clamp<sInt>(b, 0, out.a);
     }
     else
     {
-      out.r = sClamp<sInt>(r, 0, 65535);
-      out.g = sClamp<sInt>(g, 0, 65535);
-      out.b = sClamp<sInt>(b, 0, 65535);
-      out.a = sClamp<sInt>(a, 0, 65535);
+      out.r = clamp<sInt>(r, 0, 65535);
+      out.g = clamp<sInt>(g, 0, 65535);
+      out.b = clamp<sInt>(b, 0, 65535);
+      out.a = clamp<sInt>(a, 0, 65535);
     }
   }
 }
@@ -900,8 +939,8 @@ void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
       switch(op)
       {
       case DeriveGradient:
-        out->r = sClamp<sInt>(dx * 32768.0f + 32768.0f, 0, 65535);
-        out->g = sClamp<sInt>(dy * 32768.0f + 32768.0f, 0, 65535);
+        out->r = clamp<sInt>(dx * 32768.0f + 32768.0f, 0, 65535);
+        out->g = clamp<sInt>(dy * 32768.0f + 32768.0f, 0, 65535);
         out->b = 0;
         out->a = 65535;
         break;
@@ -911,9 +950,9 @@ void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
           // (1 0 dx)^T x (0 1 dy)^T = (-dx -dy 1)
           sF32 scale = 32768.0f * sFInvSqrt(1.0f + dx * dx + dy * dy);
 
-          out->r = sClamp<sInt>(-dx * scale + 32768.0f, 0, 65535);
-          out->g = sClamp<sInt>(-dy * scale + 32768.0f, 0, 65535);
-          out->b = sClamp<sInt>(scale + 32768.0f, 0, 65535);
+          out->r = clamp<sInt>(-dx * scale + 32768.0f, 0, 65535);
+          out->g = clamp<sInt>(-dy * scale + 32768.0f, 0, 65535);
+          out->b = clamp<sInt>(scale + 32768.0f, 0, 65535);
           out->a = 65535;
         }
         break;
@@ -930,7 +969,7 @@ static sInt WrapCoord(sInt x, sInt width, sInt mode)
   if(mode == 0) // wrap
     return x & (width - 1);
   else
-    return sClamp(x, 0, width - 1);
+    return clamp(x, 0, width - 1);
 }
 
 // Size is half of edge length in pixels, 26.6 fixed point
@@ -1021,8 +1060,8 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, sInt orde
 {
   assert(SameSize(inImg));
 
-  sInt sizePixX = sClamp(sizex, 0.0f, 1.0f) * 64 * inImg.XRes / 2;
-  sInt sizePixY = sClamp(sizey, 0.0f, 1.0f) * 64 * inImg.YRes / 2;
+  sInt sizePixX = clamp(sizex, 0.0f, 1.0f) * 64 * inImg.XRes / 2;
+  sInt sizePixY = clamp(sizey, 0.0f, 1.0f) * 64 * inImg.YRes / 2;
 
   // no blur at all? just copy!
   if(order < 1 || (sizePixX <= 32 && sizePixY <= 32))
@@ -1367,9 +1406,9 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
         if(falloffMap)
           addTerm.CompositeMulC(falloff);
 
-        out->r = sClamp<sInt>(out->r + addTerm.r, 0, out->a);
-        out->g = sClamp<sInt>(out->g + addTerm.g, 0, out->a);
-        out->b = sClamp<sInt>(out->b + addTerm.b, 0, out->a);
+        out->r = clamp<sInt>(out->r + addTerm.r, 0, out->a);
+        out->g = clamp<sInt>(out->g + addTerm.g, 0, out->a);
+        out->b = clamp<sInt>(out->b + addTerm.b, 0, out->a);
       }
 
       out++;
@@ -1444,10 +1483,10 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
       }
 
       // store (with clamping)
-      out->r = sClamp(acc_r, 0, 65535);
-      out->g = sClamp(acc_g, 0, 65535);
-      out->b = sClamp(acc_b, 0, 65535);
-      out->a = sClamp(acc_a, 0, 65535);
+      out->r = clamp(acc_r, 0, 65535);
+      out->g = clamp(acc_g, 0, 65535);
+      out->b = clamp(acc_b, 0, 65535);
+      out->a = clamp(acc_a, 0, 65535);
 
       // advance to next pixel
       u += stepU;
