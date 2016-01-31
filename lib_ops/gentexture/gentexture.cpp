@@ -1301,7 +1301,6 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
   assert(SameSize(surface) && SameSize(normals));
 
   sF32 L[3], H[3]; // light/halfway vector
-  sF32 invX, invY;
 
   sF32 scale = sFInvSqrt(dx * dx + dy * dy + dz * dz);
   dx *= scale;
@@ -1320,8 +1319,8 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
     H[2] = (L[2] + 1.0f) * scale;
   }
 
-  invX = 1.0f / XRes;
-  invY = 1.0f / YRes;
+  auto invX = 1.0f / XRes;
+  auto invY = 1.0f / YRes;
   Pixel* out = Data;
   const Pixel* surf = surface.Data;
   const Pixel* normal = normals.Data;
