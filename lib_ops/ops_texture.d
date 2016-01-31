@@ -191,11 +191,7 @@ void op_voronoi(Picture, float intensity, int maxCount, float minDist)
 
 void op_mix(Picture, int idx, float alpha)
 {
-  const otherId = clampTextureIndex(idx);
-  auto other = g_Textures[otherId];
-
-  if(other is null)
-    throw new Exception("No texture at this index");
+  const other = getStoredTexture(idx);
 
   if(other.NPixels != g_Texture.NPixels)
     throw new Exception("Texture must have the same size");
@@ -204,9 +200,26 @@ void op_mix(Picture, int idx, float alpha)
     pel = mix(pel, other.Data[i], alpha);
 }
 
-int clampTextureIndex(int idx)
+void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 {
-  return clamp(idx, 0, int(g_Textures.length - 1));
+  int directional = 1;
+  const other = getStoredTexture(idx);
+
+  if(other.NPixels != g_Texture.NPixels)
+    throw new Exception("Texture must have the same size");
+
+  auto oldTexture = g_Texture;
+  g_Texture = cloneTexture(oldTexture);
+  g_Texture.Bump(*oldTexture, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
+  destroy(*oldTexture);
+}
+
+gentexture.Pixel toPixel(Vec3 v)
+{
+  return gentexture.Color(
+      cast(ushort)(v.x * 255),
+      cast(ushort)(v.y * 255),
+      cast(ushort)(v.z * 255));
 }
 
 gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
@@ -217,6 +230,22 @@ gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
   result.b = cast(ushort) blend(cast(float)A.b, cast(float)B.b, alpha);
   result.a = cast(ushort) blend(cast(float)A.a, cast(float)B.a, alpha);
   return result;
+}
+
+GenTexture* getStoredTexture(int idx)
+{
+  const otherId = clampTextureIndex(idx);
+  auto other = g_Textures[otherId];
+
+  if(other is null)
+    throw new Exception("No texture at this index");
+
+  return other;
+}
+
+int clampTextureIndex(int idx)
+{
+  return clamp(idx, 0, int(g_Textures.length - 1));
 }
 
 static this()
@@ -230,5 +259,6 @@ static this()
   registerOperator!(op_voronoi, "txt", "tvoronoi")();
   registerOperator!(op_mix, "txt", "tmix")();
   registerOperator!(op_blur, "txt", "tblur")();
+  registerOperator!(op_bump, "txt", "tbump")();
 }
 

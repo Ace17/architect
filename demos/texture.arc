@@ -2,13 +2,20 @@ root()
 {
   picture(Vec2(256, 256));
   texture(Vec2(256, 256));
-  tvoronoi(4.3, 181, 0.05);
+
+  tnoise(5, 5, 5, 0.9);
   tstore(1);
-  tnoise(3,3,5,0.6);
-  tmix(1, 0.3);
+
+  tvoronoi(4.1, 220, 0.05);
   tstore(2);
-  tderive(1, 6);
-  tmix(2, 0.4);
-  tblur(0.01, 0.01, 5, 0.1);
+  
+  tload(1);
+  
+  let ambient = Vec3(0.2, 0.5, 0);
+  let diffuse = Vec3(0.5, 0.1, 0.1);
+  let p = Vec3(1, 0.5, 0.1);
+  let d = Vec3(1, 0.5, 0.4);
+  tbump(2, p, d, ambient, diffuse);
+//  tblur(0.01, 0.01, 5, 0.1);
   display();
 }
