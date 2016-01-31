@@ -216,10 +216,12 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 
 gentexture.Pixel toPixel(Vec3 v)
 {
-  return gentexture.Color(
-      cast(ushort)(v.x * 255),
-      cast(ushort)(v.y * 255),
-      cast(ushort)(v.z * 255));
+  static auto rescale(float val)
+  {
+    return cast(ubyte)clamp(val * 256, 0, 255);
+  }
+
+  return gentexture.Color(rescale(v.x), rescale(v.y), rescale(v.z));
 }
 
 gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
