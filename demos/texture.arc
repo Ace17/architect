@@ -17,5 +17,6 @@ root()
   let d = Vec3(1, 0.5, 0.4);
   tbump(2, p, d, ambient, diffuse);
 //  tblur(0.01, 0.01, 5, 0.1);
+  trect(0.5, 0.5, 0.2, 0, 0, 0.2, 0.6, 0.6);
   display();
 }

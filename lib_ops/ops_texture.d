@@ -214,6 +214,18 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
   destroy(*oldTexture);
 }
 
+void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv)
+{
+  auto grad = GenTexture(2, 1);
+  grad.Data[0].Init(0xffffffff);
+  grad.Data[1].Init(0x00000000);
+
+  auto oldTexture = g_Texture;
+  g_Texture = cloneTexture(oldTexture);
+  g_Texture.GlowRect(*oldTexture, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
+  destroy(*oldTexture);
+}
+
 gentexture.Pixel toPixel(Vec3 v)
 {
   static auto rescale(float val)
@@ -262,5 +274,6 @@ static this()
   registerOperator!(op_mix, "txt", "tmix")();
   registerOperator!(op_blur, "txt", "tblur")();
   registerOperator!(op_bump, "txt", "tbump")();
+  registerOperator!(op_rect, "txt", "trect")();
 }
 
