@@ -51,11 +51,13 @@ void registerOperator(alias F, string cat, string name)()
     if(N != argVals.length)
     {
       string s;
-      foreach(type; MyArgs[1..$])
+
+      foreach(type; MyArgs[1 .. $])
       {
         s ~= type.stringof;
         s ~= " ";
       }
+
       const msg = format("invalid number of arguments for '%s' (%s instead of %s) (%s)", name, argVals.length, N, s);
       throw new Exception(msg);
     }

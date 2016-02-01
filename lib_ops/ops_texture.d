@@ -230,7 +230,7 @@ gentexture.Pixel toPixel(Vec3 v)
 {
   static auto rescale(float val)
   {
-    return cast(ubyte)clamp(val * 256, 0, 255);
+    return cast(ubyte) clamp(val* 256, 0, 255);
   }
 
   return gentexture.Color(rescale(v.x), rescale(v.y), rescale(v.z));
