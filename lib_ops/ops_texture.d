@@ -259,7 +259,7 @@ GenTexture* getStoredTexture(int idx)
 
 int clampTextureIndex(int idx)
 {
-  return clamp(idx, 0, int(g_Textures.length - 1));
+  return clamp(idx, 0, cast(int)(g_Textures.length - 1));
 }
 
 static this()
