@@ -29,21 +29,25 @@ void writeBMP(in Picture img, string filename)
 
   immutable pitch = size.w*bpp;
 
+  ubyte[] rawLine;
+  rawLine.length = size.w * bpp;
+  while(rawLine.length % 4 != 0)
+    rawLine ~= 0;
+
+  static int convert(float val)
+  {
+    return clamp(cast(int)(val * 255.0), 0, 255);
+  }
+
   for(int y=size.h-1;y >= 0;--y)
   {
-    ubyte[] rawLine;
-
     for(int x=0;x < size.w; ++x)
     {
       immutable pixel = img.blocks[0](x, y);
-      rawLine ~= cast(ubyte)(pixel.b * 255);
-      rawLine ~= cast(ubyte)(pixel.g * 255);
-      rawLine ~= cast(ubyte)(pixel.r * 255);
+      rawLine[x*3+0] = cast(ubyte)convert(pixel.b);
+      rawLine[x*3+1] = cast(ubyte)convert(pixel.g);
+      rawLine[x*3+2] = cast(ubyte)convert(pixel.r);
     }
-
-    // padding
-    while(rawLine.length % 4 != 0)
-      rawLine ~= 0;
 
     fp.rawWrite(rawLine);
   }
@@ -73,3 +77,13 @@ static void writeLE4(File fp, uint value)
   data[3] = (value >> 24) & 0xff;
   fp.rawWrite(data);
 }
+
+static int clamp(int val, int min, int max)
+{
+  if(val < min)
+    return min;
+  if(val > max)
+    return max;
+  return val;
+}
+
