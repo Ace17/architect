@@ -42,7 +42,16 @@ endif
 show_targets:
 	echo $(TARGETS)
 
-LINK?=gdc
+DC?=gdc
+
+CROSS_COMPILE?=
+ifneq (,$(CROSS_COMPILE))
+CXX:=$(CROSS_COMPILE)g++
+CC:=$(CROSS_COMPILE)gcc
+DC:=$(CROSS_COMPILE)gdc
+endif
+
+LINK?=$(DC)
 
 $(BIN)/%.exe:
 	@echo "$(CLR_INFO)Linking $@$(CLR_OFF)"
@@ -64,8 +73,9 @@ $(BIN)/%.a:
 $(BIN)/%_d.o: %.d
 	@echo "$(CLR_INFO)Compiling $@ $(CLR_DBG)(depends on $^) $(CLR_OFF)"
 	@mkdir -p "$(dir $@)"
-	@gdc -fdeps="$(BIN)/$*_d.fdeps" -c "$<" -o "$@" $(DINCS) $(DFLAGS)
+	@$(DC) -fdeps="$(BIN)/$*_d.fdeps" -c "$<" -o "$@" $(DINCS) $(DFLAGS)
 	@$(THIS)/convert_deps "$(BIN)/$*_d.fdeps" "$(BIN)/$*_d.deps" "$@"
+	@rm "$(BIN)/$*_d.fdeps"
 
 $(BIN)/%_cpp.o: %.cpp
 	@echo "$(CLR_INFO)Compiling $@ $(CLR_DBG)(depends on $^) $(CLR_OFF)"
