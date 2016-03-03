@@ -28,12 +28,12 @@ class Picture : Dashboard
     blocks ~= Block(data.ptr, Dimension(256, 256), 256);
   }
 
-  Dimension getSize()
+  Dimension getSize() const
   {
     return currBlock().dim;
   }
 
-  Block currBlock()
+  inout(Block) currBlock() inout
   {
     return blocks[$ - 1];
   }

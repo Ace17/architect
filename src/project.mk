@@ -4,8 +4,8 @@ endif
 
 DFLAGS+=-J$(THIS)
 
-DFLAGS+=`pkg-config gtkd-3 --cflags`
-LDFLAGS+=`pkg-config gtkdsv-3 gtkd-3 glu --static --libs`
+DFLAGS+=$(shell pkg-config gtkd-3 --cflags)
+LDFLAGS+=$(shell pkg-config gtkdsv-3 gtkd-3 glu --static --libs)
 
 architect-gui.srcs:=\
   $(THIS)/cmdline.d\
@@ -17,4 +17,5 @@ architect-gui.srcs:=\
 
 architect.srcs:=\
   $(THIS)/exe_architect.d\
+  $(THIS)/bmp_writer.d\
 

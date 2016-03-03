@@ -10,6 +10,8 @@ import loader;
 import parser;
 import value;
 import editlist;
+import bmp_writer;
+import dashboard_picture;
 
 int main(string[] args)
 {
@@ -17,11 +19,13 @@ int main(string[] args)
   {
     bool mustDumpEditList;
     bool mustDumpAst;
+    string outputFile;
 
     getopt(
       args,
       "dump", &mustDumpEditList,
       "ast", &mustDumpAst,
+      "o|output", &outputFile,
       );
 
     if(args.length <= 1)
@@ -37,6 +41,20 @@ int main(string[] args)
 
     if(mustDumpEditList)
       dumpEditList(editList);
+
+    if(outputFile != "")
+    {
+      import execute;
+      auto db = executeEditList(editList);
+      if(auto pic = cast(Picture)db)
+      {
+        writeBMP(pic, outputFile);
+      }
+      else
+      {
+        throw new Exception("can't write this dashboard type to disk");
+      }
+    }
 
     return 0;
   }
