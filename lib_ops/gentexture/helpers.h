@@ -1,9 +1,24 @@
+/**
+ * @file helpers.h
+ * @brief Helper functions for filters.
+ * @author Sebastien Alaiwan
+ * @date 2016-03-06
+ */
+
+/*
+ * Copyright (C) 2015 - Sebastien Alaiwan
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ */
+
 #pragma once
 #include <math.h>
 #include <algorithm>
 #include <cassert>
-using namespace std;
 
+using namespace std; // okay for 'std', otherwise code gets too verbose
 
 typedef float sF32;
 
