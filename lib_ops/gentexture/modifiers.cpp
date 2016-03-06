@@ -2,11 +2,11 @@
 #include "helpers.h"
 #include <cstring>
 
-void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, bool clampPremult)
+void ColorMatrixTransform(GenTexture* dest, const GenTexture& x, Matrix44& matrix, bool clampPremult)
 {
   int m[4][4];
 
-  assert(SameSize(x));
+  assert(dest->SameSize(x));
 
   for(int i = 0; i < 4; i++)
   {
@@ -17,9 +17,9 @@ void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, boo
     }
   }
 
-  for(int i = 0; i < NPixels; i++)
+  for(int i = 0; i < dest->NPixels; i++)
   {
-    auto& out = Data[i];
+    auto& out = dest->Data[i];
     auto in = x.Data[i];
 
     auto r = MulShift16(m[0][0], in.r) + MulShift16(m[0][1], in.g) + MulShift16(m[0][2], in.b) + MulShift16(m[0][3], in.a);
@@ -44,10 +44,10 @@ void GenTexture::ColorMatrixTransform(const GenTexture& x, Matrix44& matrix, boo
   }
 }
 
-void GenTexture::CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, int mode)
+void CoordMatrixTransform(GenTexture* dest, const GenTexture& in, Matrix44& matrix, int mode)
 {
-  int scaleX = 1 << (24 - ShiftX);
-  int scaleY = 1 << (24 - ShiftY);
+  int scaleX = 1 << (24 - dest->ShiftX);
+  int scaleY = 1 << (24 - dest->ShiftY);
 
   int dudx = matrix[0][0] * scaleX;
   int dudy = matrix[0][1] * scaleY;
@@ -56,14 +56,14 @@ void GenTexture::CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, in
 
   int u0 = matrix[0][3] * (1 << 24) + ((dudx + dudy) >> 1);
   int v0 = matrix[1][3] * (1 << 24) + ((dvdx + dvdy) >> 1);
-  Pixel* out = Data;
+  Pixel* out = dest->Data;
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
     int u = u0;
     int v = v0;
 
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       in.SampleFiltered(*out, u, v, mode);
 
@@ -77,14 +77,14 @@ void GenTexture::CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, in
   }
 }
 
-void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, const GenTexture& mapG, const GenTexture& mapB)
+void ColorRemap(GenTexture* dest, const GenTexture& inTex, const GenTexture& mapR, const GenTexture& mapG, const GenTexture& mapB)
 {
-  assert(SameSize(inTex));
+  assert(dest->SameSize(inTex));
 
-  for(int i = 0; i < NPixels; i++)
+  for(int i = 0; i < dest->NPixels; i++)
   {
     const Pixel& in = inTex.Data[i];
-    Pixel& out = Data[i];
+    Pixel& out = dest->Data[i];
 
     if(in.a == 65535) // alpha==1, everything easy.
     {
@@ -118,26 +118,26 @@ void GenTexture::ColorRemap(const GenTexture& inTex, const GenTexture& mapR, con
   }
 }
 
-void GenTexture::CoordRemap(const GenTexture& in, const GenTexture& remapTex, sF32 strengthU, sF32 strengthV, int mode)
+void CoordRemap(GenTexture* dest, const GenTexture& in, const GenTexture& remapTex, sF32 strengthU, sF32 strengthV, int mode)
 {
-  assert(SameSize(remapTex));
+  assert(dest->SameSize(remapTex));
 
   const Pixel* remap = remapTex.Data;
-  Pixel* out = Data;
+  Pixel* out = dest->Data;
 
-  int u0 = MinX;
-  int v0 = MinY;
+  int u0 = dest->MinX;
+  int v0 = dest->MinY;
   int scaleU = (1 << 24) * strengthU;
   int scaleV = (1 << 24) * strengthV;
-  int stepU = 1 << (24 - ShiftX);
-  int stepV = 1 << (24 - ShiftY);
+  int stepU = 1 << (24 - dest->ShiftX);
+  int stepV = 1 << (24 - dest->ShiftY);
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
     int u = u0;
     int v = v0;
 
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       int dispU = u + MulShift16(scaleU, (remap->r - 32768) * 2);
       int dispV = v + MulShift16(scaleV, (remap->g - 32768) * 2);
@@ -152,11 +152,14 @@ void GenTexture::CoordRemap(const GenTexture& in, const GenTexture& remapTex, sF
   }
 }
 
-void GenTexture::Derive(const GenTexture& in, DeriveOp op, sF32 strength)
+void Derive(GenTexture* dest, const GenTexture& in, DeriveOp op, sF32 strength)
 {
-  assert(SameSize(in));
+  assert(dest->SameSize(in));
 
-  Pixel* out = Data;
+  Pixel* out = dest->Data;
+
+  const auto XRes = dest->XRes;
+  const auto YRes = dest->YRes;
 
   for(int y = 0; y < YRes; y++)
   {
@@ -286,9 +289,9 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, int width, int sizeFixed,
   }
 }
 
-void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order, int wrapMode)
+void Blur(GenTexture* dest, const GenTexture& inImg, sF32 sizex, sF32 sizey, int order, int wrapMode)
 {
-  assert(SameSize(inImg));
+  assert(dest->SameSize(inImg));
 
   int sizePixX = clamp(sizex, 0.0f, 1.0f) * 64 * inImg.XRes / 2;
   int sizePixY = clamp(sizey, 0.0f, 1.0f) * 64 * inImg.YRes / 2;
@@ -296,9 +299,12 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order
   // no blur at all? just copy!
   if(order < 1 || (sizePixX <= 32 && sizePixY <= 32))
   {
-    *this = inImg;
+    *dest = inImg;
     return;
   }
+
+  auto const XRes = dest->XRes;
+  auto const YRes = dest->YRes;
 
   // allocate pixel buffers
   int bufSize = max(XRes, YRes);
@@ -327,10 +333,10 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order
       }
 
       // copy pixels back
-      memcpy(&Data[y * XRes], buf1, XRes * sizeof(Pixel));
+      memcpy(&dest->Data[y * XRes], buf1, XRes * sizeof(Pixel));
     }
 
-    input = this;
+    input = dest;
   }
 
   // vertical blur
@@ -358,7 +364,7 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order
 
       // copy pixels back
       src = buf1;
-      dst = &Data[x];
+      dst = &dest->Data[x];
 
       for(int y = 0; y < YRes; y++)
       {

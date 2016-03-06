@@ -61,14 +61,6 @@ struct GenTexture
   }
 
   void Free();
-
-  // Filters
-  void ColorMatrixTransform(ref const(GenTexture)in_, ref Matrix44 matrix, bool clampPremult);
-  void CoordMatrixTransform(ref const(GenTexture)in_, ref Matrix44 matrix, int filterMode);
-  void ColorRemap(ref const(GenTexture)in_, ref const(GenTexture)mapR, ref const(GenTexture)mapG, ref const(GenTexture)mapB);
-  void CoordRemap(ref const(GenTexture)in_, ref const(GenTexture)remap, float strengthU, float strengthV, int filterMode);
-  void Derive(ref const(GenTexture)in_, DeriveOp op, float strength);
-  void Blur(ref const(GenTexture)in_, float sizex, float sizey, int order, int mode);
 };
 
 // Actual generator functions
@@ -81,6 +73,14 @@ void Ternary(GenTexture* dest, ref const(GenTexture)in1, ref const(GenTexture)in
 void Paste(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
 void Bump(GenTexture* dest, ref const(GenTexture)surface, ref const(GenTexture)normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
 void LinearCombine(GenTexture* dest, Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
+
+// Filters
+void ColorMatrixTransform(GenTexture* dest, ref const(GenTexture)in_, ref Matrix44 matrix, bool clampPremult);
+void CoordMatrixTransform(GenTexture* dest, ref const(GenTexture)in_, ref Matrix44 matrix, int filterMode);
+void ColorRemap(GenTexture* dest, ref const(GenTexture)in_, ref const(GenTexture)mapR, ref const(GenTexture)mapG, ref const(GenTexture)mapB);
+void CoordRemap(GenTexture* dest, ref const(GenTexture)in_, ref const(GenTexture)remap, float strengthU, float strengthV, int filterMode);
+void Derive(GenTexture* dest, ref const(GenTexture)in_, DeriveOp op, float strength);
+void Blur(GenTexture* dest, ref const(GenTexture)in_, float sizex, float sizey, int order, int mode);
 
 enum TernaryOp
 {
