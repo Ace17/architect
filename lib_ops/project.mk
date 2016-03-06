@@ -1,7 +1,3 @@
-#-------------------------------------------------------------------------------
-# lib_ops project file
-#-------------------------------------------------------------------------------
-
 srcs:=\
 	$(THIS)/ast.d\
 	$(THIS)/ast_util.d\
@@ -26,7 +22,7 @@ srcs:=\
 	$(THIS)/vect.d\
 	$(THIS)/gentexture.d\
 	$(THIS)/gentexture/combiners.cpp\
+	$(THIS)/gentexture/filters.cpp\
 	$(THIS)/gentexture/generators.cpp\
 	$(THIS)/gentexture/gentexture.cpp\
-	$(THIS)/gentexture/modifiers.cpp\
 

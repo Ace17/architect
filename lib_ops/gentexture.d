@@ -63,7 +63,7 @@ struct GenTexture
   void Free();
 };
 
-// Actual generator functions
+// Generators
 void Noise(GenTexture* dest, ref const(GenTexture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
 void GlowRect(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
 void Cells(GenTexture* dest, ref const(GenTexture)grad, const CellCenter* centers, int nCenters, float amp, int mode);
