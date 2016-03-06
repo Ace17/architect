@@ -5,13 +5,7 @@
 using namespace std;
 
 
-typedef float sF32;  // basic floatingpoint
-
-/****************************************************************************/
-/***                                                                      ***/
-/***   Helpers                                                            ***/
-/***                                                                      ***/
-/****************************************************************************/
+typedef float sF32;
 
 template<class T>
 inline T sSquare(T a)

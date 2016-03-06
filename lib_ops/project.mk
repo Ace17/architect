@@ -25,7 +25,8 @@ srcs:=\
 	$(THIS)/value.d\
 	$(THIS)/vect.d\
 	$(THIS)/gentexture.d\
-	$(THIS)/gentexture/gentexture.cpp\
 	$(THIS)/gentexture/combiners.cpp\
 	$(THIS)/gentexture/generators.cpp\
+	$(THIS)/gentexture/gentexture.cpp\
+	$(THIS)/gentexture/modifiers.cpp\
 
