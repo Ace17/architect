@@ -1053,76 +1053,77 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order
 
   // no blur at all? just copy!
   if(order < 1 || (sizePixX <= 32 && sizePixY <= 32))
-    *this = inImg;
-  else
   {
-    // allocate pixel buffers
-    int bufSize = max(XRes, YRes);
-    Pixel* buf1 = new Pixel[bufSize];
-    Pixel* buf2 = new Pixel[bufSize];
-    const GenTexture* in = &inImg;
+    *this = inImg;
+    return;
+  }
 
-    // horizontal blur
-    if(sizePixX > 32)
+  // allocate pixel buffers
+  int bufSize = max(XRes, YRes);
+
+  vector<Pixel> buf1_mem(bufSize);
+  vector<Pixel> buf2_mem(bufSize);
+
+  Pixel* buf1 = buf1_mem.data();
+  Pixel* buf2 = buf2_mem.data();
+  const GenTexture* input = &inImg;
+
+  // horizontal blur
+  if(sizePixX > 32)
+  {
+    // go through image row by row
+    for(int y = 0; y < YRes; y++)
     {
-      // go through image row by row
+      // copy pixels into buffer 1
+      memcpy(buf1, &input->Data[y * XRes], XRes * sizeof(Pixel));
+
+      // blur order times, ping-ponging between buffers
+      for(int i = 0; i < order; i++)
+      {
+        Blur1DBuffer(buf2, buf1, XRes, sizePixX, (wrapMode & ClampU) ? 1 : 0);
+        swap(buf1, buf2);
+      }
+
+      // copy pixels back
+      memcpy(&Data[y * XRes], buf1, XRes * sizeof(Pixel));
+    }
+
+    input = this;
+  }
+
+  // vertical blur
+  if(sizePixY > 32)
+  {
+    // go through image column by column
+    for(int x = 0; x < XRes; x++)
+    {
+      // copy pixels into buffer 1
+      const Pixel* src = &input->Data[x];
+      Pixel* dst = buf1;
+
       for(int y = 0; y < YRes; y++)
       {
-        // copy pixels into buffer 1
-        memcpy(buf1, &in->Data[y * XRes], XRes * sizeof(Pixel));
-
-        // blur order times, ping-ponging between buffers
-        for(int i = 0; i < order; i++)
-        {
-          Blur1DBuffer(buf2, buf1, XRes, sizePixX, (wrapMode & ClampU) ? 1 : 0);
-          swap(buf1, buf2);
-        }
-
-        // copy pixels back
-        memcpy(&Data[y * XRes], buf1, XRes * sizeof(Pixel));
+        *dst++ = *src;
+        src += XRes;
       }
 
-      in = this;
-    }
-
-    // vertical blur
-    if(sizePixY > 32)
-    {
-      // go through image column by column
-      for(int x = 0; x < XRes; x++)
+      // blur order times, ping-ponging between buffers
+      for(int i = 0; i < order; i++)
       {
-        // copy pixels into buffer 1
-        const Pixel* src = &in->Data[x];
-        Pixel* dst = buf1;
+        Blur1DBuffer(buf2, buf1, YRes, sizePixY, (wrapMode & ClampV) ? 1 : 0);
+        swap(buf1, buf2);
+      }
 
-        for(int y = 0; y < YRes; y++)
-        {
-          *dst++ = *src;
-          src += XRes;
-        }
+      // copy pixels back
+      src = buf1;
+      dst = &Data[x];
 
-        // blur order times, ping-ponging between buffers
-        for(int i = 0; i < order; i++)
-        {
-          Blur1DBuffer(buf2, buf1, YRes, sizePixY, (wrapMode & ClampV) ? 1 : 0);
-          swap(buf1, buf2);
-        }
-
-        // copy pixels back
-        src = buf1;
-        dst = &Data[x];
-
-        for(int y = 0; y < YRes; y++)
-        {
-          *dst = *src++;
-          dst += XRes;
-        }
+      for(int y = 0; y < YRes; y++)
+      {
+        *dst = *src++;
+        dst += XRes;
       }
     }
-
-    // clean up
-    delete[] buf1;
-    delete[] buf2;
   }
 }
 
@@ -1425,13 +1426,11 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
   }
 
   // compute preweighted constant color
-  int c_r, c_g, c_b, c_a, t;
-
-  t = constWeight * 65536.0f;
-  c_r = MulShift16(t, color.r);
-  c_g = MulShift16(t, color.g);
-  c_b = MulShift16(t, color.b);
-  c_a = MulShift16(t, color.a);
+  int t = constWeight * 65536.0f;
+  int c_r = MulShift16(t, color.r);
+  int c_g = MulShift16(t, color.g);
+  int c_b = MulShift16(t, color.b);
+  int c_a = MulShift16(t, color.a);
 
   // calculate output image
   int u0 = MinX;
@@ -1447,13 +1446,11 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
 
     for(int x = 0; x < XRes; x++)
     {
-      int acc_r, acc_g, acc_b, acc_a;
-
       // initialize accumulator with start value
-      acc_r = c_r;
-      acc_g = c_g;
-      acc_b = c_b;
-      acc_a = c_a;
+      int acc_r = c_r;
+      int acc_g = c_g;
+      int acc_b = c_b;
+      int acc_a = c_a;
 
       // accumulate inputs
       for(int j = 0; j < nInputs; j++)
