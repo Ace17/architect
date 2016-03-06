@@ -149,11 +149,6 @@ struct GenTexture
   void SampleFiltered(Pixel& result, int x, int y, int filterMode) const;
   void SampleGradient(Pixel& result, int x) const;
 
-  // Actual generator functions
-  void Noise(const GenTexture& grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
-  void GlowRect(const GenTexture& background, const GenTexture& grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
-  void Cells(const GenTexture& grad, const CellCenter* centers, int nCenters, float amp, int mode);
-
   // Filters
   void ColorMatrixTransform(const GenTexture& in, Matrix44& matrix, bool clampPremult);
   void CoordMatrixTransform(const GenTexture& in, Matrix44& matrix, int filterMode);
@@ -168,4 +163,9 @@ struct GenTexture
   void Bump(const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
   void LinearCombine(Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 };
+
+// Actual generator functions
+void Noise(GenTexture* dest, const GenTexture& grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
+void GlowRect(GenTexture* dest, const GenTexture& background, const GenTexture& grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
+void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, float amp, int mode);
 

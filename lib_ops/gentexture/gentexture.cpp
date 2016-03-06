@@ -485,7 +485,7 @@ void GenTexture::SampleGradient(Pixel& result, int x) const
 
 // ---- The operators themselves
 
-void GenTexture::Noise(const GenTexture& grad, int freqX, int freqY, int oct, sF32 fadeoff, int seed, NoiseMode mode)
+void Noise(GenTexture* dest, const GenTexture& grad, int freqX, int freqY, int oct, sF32 fadeoff, int seed, NoiseMode mode)
 {
   assert(oct > 0);
 
@@ -510,20 +510,20 @@ void GenTexture::Noise(const GenTexture& grad, int freqX, int freqY, int oct, sF
     scaling *= (1 << 23);
   }
 
-  int offsX = (1 << (16 - ShiftX + freqX)) >> 1;
-  int offsY = (1 << (16 - ShiftY + freqY)) >> 1;
+  int offsX = (1 << (16 - dest->ShiftX + freqX)) >> 1;
+  int offsY = (1 << (16 - dest->ShiftY + freqY)) >> 1;
 
-  Pixel* out = Data;
+  Pixel* out = dest->Data;
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       int n = offset;
       sF32 s = scaling;
 
-      int px = (x << (16 - ShiftX + freqX)) + offsX;
-      int py = (y << (16 - ShiftY + freqY)) + offsY;
+      int px = (x << (16 - dest->ShiftX + freqX)) + offsX;
+      int py = (y << (16 - dest->ShiftY + freqY)) + offsY;
       int mx = (1 << freqX) - 1;
       int my = (1 << freqY) - 1;
 
@@ -549,13 +549,16 @@ void GenTexture::Noise(const GenTexture& grad, int freqX, int freqY, int oct, sF
   }
 }
 
-void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv)
+void GlowRect(GenTexture* dest, const GenTexture& bgTex, const GenTexture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv)
 {
-  assert(SameSize(bgTex));
+  assert(dest->SameSize(bgTex));
 
   // copy background over (if we're not the background texture already)
-  if(this != &bgTex)
-    *this = bgTex;
+  if(dest != &bgTex)
+    *dest = bgTex;
+
+  auto const XRes = dest->XRes;
+  auto const YRes = dest->YRes;
 
   // calculate bounding rect
   int minX = max(0, int(floor((orgx - abs(ux) - abs(vx)) * XRes)));
@@ -585,7 +588,7 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
 
   for(int y = minY; y <= maxY; y++)
   {
-    Pixel* out = &Data[y * XRes + minX];
+    Pixel* out = &dest->Data[y * XRes + minX];
     int u = u0;
     int v = v0;
 
@@ -627,7 +630,7 @@ void GenTexture::GlowRect(const GenTexture& bgTex, const GenTexture& grad, sF32 
   }
 }
 
-void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, int mode)
+void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, int mode)
 {
   assert(((mode & 1) == 0) ? nCenters >= 1 : nCenters >= 2);
 
@@ -638,7 +641,7 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, int nC
     int node;
   };
 
-  Pixel* out = Data;
+  Pixel* out = dest->Data;
 
   vector<CellPoint> points(nCenters);
 
@@ -654,13 +657,13 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, int nC
     points[i].node = i;
   }
 
-  int stepX = 1 << (scaleF - ShiftX);
-  int stepY = 1 << (scaleF - ShiftY);
+  int stepX = 1 << (scaleF - dest->ShiftX);
+  int stepY = 1 << (scaleF - dest->ShiftY);
   int yc = stepY >> 1;
 
   amp = amp * (1 << 24);
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
     int xc = stepX >> 1;
 
@@ -692,7 +695,7 @@ void GenTexture::Cells(const GenTexture& grad, const CellCenter* centers, int nC
     best = best2 = sSquare(scale);
     besti = best2i = -1;
 
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       int t, dx;
 

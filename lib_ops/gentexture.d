@@ -62,11 +62,6 @@ struct GenTexture
 
   void Free();
 
-  // Actual generator functions
-  void Noise(ref const(GenTexture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
-  void GlowRect(ref const(GenTexture)background, ref const(GenTexture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
-  void Cells(ref const(GenTexture)grad, const CellCenter* centers, int nCenters, float amp, int mode);
-
   // Filters
   void ColorMatrixTransform(ref const(GenTexture)in_, ref Matrix44 matrix, bool clampPremult);
   void CoordMatrixTransform(ref const(GenTexture)in_, ref Matrix44 matrix, int filterMode);
@@ -81,6 +76,11 @@ struct GenTexture
   void Bump(ref const(GenTexture)surface, ref const(GenTexture)normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
   void LinearCombine(Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 };
+
+// Actual generator functions
+void Noise(GenTexture* dest, ref const(GenTexture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
+void GlowRect(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
+void Cells(GenTexture* dest, ref const(GenTexture)grad, const CellCenter* centers, int nCenters, float amp, int mode);
 
 enum TernaryOp
 {
