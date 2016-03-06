@@ -19,7 +19,7 @@ void writeBMP(in Picture img, string filename)
   writeLE4(fp, size.w);
   writeLE4(fp, size.h);
   writeLE2(fp, 1); // planes
-  writeLE2(fp, cast(ushort)(bpp*8));
+  writeLE2(fp, cast(ushort)(bpp * 8));
   writeLE4(fp, 0); // compression: RGB
   writeLE4(fp, size.w * size.h * bpp);
   writeLE4(fp, 2835);
@@ -27,10 +27,11 @@ void writeBMP(in Picture img, string filename)
   writeLE4(fp, 0);
   writeLE4(fp, 0);
 
-  immutable pitch = size.w*bpp;
+  immutable pitch = size.w * bpp;
 
   ubyte[] rawLine;
   rawLine.length = size.w * bpp;
+
   while(rawLine.length % 4 != 0)
     rawLine ~= 0;
 
@@ -39,14 +40,14 @@ void writeBMP(in Picture img, string filename)
     return clamp(cast(int)(val * 255.0), 0, 255);
   }
 
-  for(int y=size.h-1;y >= 0;--y)
+  for(int y = size.h - 1; y >= 0; --y)
   {
-    for(int x=0;x < size.w; ++x)
+    for(int x = 0; x < size.w; ++x)
     {
-      immutable pixel = img.blocks[0](x, y);
-      rawLine[x*3+0] = cast(ubyte)convert(pixel.b);
-      rawLine[x*3+1] = cast(ubyte)convert(pixel.g);
-      rawLine[x*3+2] = cast(ubyte)convert(pixel.r);
+      immutable pixel = img.blocks[0] (x, y);
+      rawLine[x * 3 + 0] = cast(ubyte) convert(pixel.b);
+      rawLine[x * 3 + 1] = cast(ubyte) convert(pixel.g);
+      rawLine[x * 3 + 2] = cast(ubyte) convert(pixel.r);
     }
 
     fp.rawWrite(rawLine);
@@ -59,7 +60,6 @@ void writeBMP(in Picture img, string filename)
 }
 
 private:
-
 static void writeLE2(File fp, ushort value)
 {
   ubyte[2] data;
@@ -82,8 +82,10 @@ static int clamp(int val, int min, int max)
 {
   if(val < min)
     return min;
+
   if(val > max)
     return max;
+
   return val;
 }
 

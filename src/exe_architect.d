@@ -46,6 +46,7 @@ int main(string[] args)
     {
       import execute;
       auto db = executeEditList(editList);
+
       if(auto pic = cast(Picture)db)
       {
         writeBMP(pic, outputFile);

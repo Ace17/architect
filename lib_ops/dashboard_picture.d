@@ -33,7 +33,7 @@ class Picture : Dashboard
     return currBlock().dim;
   }
 
-  inout(Block) currBlock() inout
+  inout (Block)currBlock() inout
   {
     return blocks[$ - 1];
   }
