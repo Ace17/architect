@@ -210,7 +210,7 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 
   auto oldTexture = g_Texture;
   g_Texture = cloneTexture(oldTexture);
-  g_Texture.Bump(*oldTexture, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
+  Bump(g_Texture, *oldTexture, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
   destroy(*oldTexture);
 }
 

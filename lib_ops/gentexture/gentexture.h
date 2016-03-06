@@ -156,16 +156,16 @@ struct GenTexture
   void CoordRemap(const GenTexture& in, const GenTexture& remap, float strengthU, float strengthV, int filterMode);
   void Derive(const GenTexture& in, DeriveOp op, float strength);
   void Blur(const GenTexture& in, float sizex, float sizey, int order, int mode);
-
-  // Combiners
-  void Ternary(const GenTexture& in1, const GenTexture& in2, const GenTexture& in3, TernaryOp op);
-  void Paste(const GenTexture& background, const GenTexture& snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
-  void Bump(const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
-  void LinearCombine(Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 };
 
 // Actual generator functions
 void Noise(GenTexture* dest, const GenTexture& grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
 void GlowRect(GenTexture* dest, const GenTexture& background, const GenTexture& grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
 void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, float amp, int mode);
+
+// Combiners
+void Ternary(GenTexture* dest, const GenTexture& in1, const GenTexture& in2, const GenTexture& in3, TernaryOp op);
+void Paste(GenTexture* dest, const GenTexture& background, const GenTexture& snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
+void Bump(GenTexture* dest, const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
+void LinearCombine(GenTexture* dest, Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 

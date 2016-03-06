@@ -1130,13 +1130,13 @@ void GenTexture::Blur(const GenTexture& inImg, sF32 sizex, sF32 sizey, int order
   }
 }
 
-void GenTexture::Ternary(const GenTexture& in1Tex, const GenTexture& in2Tex, const GenTexture& in3Tex, TernaryOp op)
+void Ternary(GenTexture* dest, const GenTexture& in1Tex, const GenTexture& in2Tex, const GenTexture& in3Tex, TernaryOp op)
 {
-  assert(SameSize(in1Tex) && SameSize(in2Tex) && SameSize(in3Tex));
+  assert(dest->SameSize(in1Tex) && dest->SameSize(in2Tex) && dest->SameSize(in3Tex));
 
-  for(int i = 0; i < NPixels; i++)
+  for(int i = 0; i < dest->NPixels; i++)
   {
-    Pixel& out = Data[i];
+    Pixel& out = dest->Data[i];
     const Pixel& in1 = in1Tex.Data[i];
     const Pixel& in2 = in2Tex.Data[i];
     const Pixel& in3 = in3Tex.Data[i];
@@ -1156,13 +1156,16 @@ void GenTexture::Ternary(const GenTexture& in1Tex, const GenTexture& in2Tex, con
   }
 }
 
-void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
+void Paste(GenTexture* dest, const GenTexture& bgTex, const GenTexture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
 {
-  assert(SameSize(bgTex));
+  assert(dest->SameSize(bgTex));
 
   // copy background over (if this image is not the background already)
-  if(this != &bgTex)
-    *this = bgTex;
+  if(dest != &bgTex)
+    *dest = bgTex;
+
+  auto const XRes = dest->XRes;
+  auto const YRes = dest->YRes;
 
   // calculate bounding rect
   int minX = max<int>(0, floor((orgx + min(ux, 0.0f) + min(vx, 0.0f)) * XRes));
@@ -1188,7 +1191,7 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
 
   for(int y = minY; y <= maxY; y++)
   {
-    Pixel* out = &Data[y * XRes + minX];
+    Pixel* out = &dest->Data[y * XRes + minX];
     int u = u0;
     int v = v0;
 
@@ -1300,9 +1303,9 @@ void GenTexture::Paste(const GenTexture& bgTex, const GenTexture& inTex, sF32 or
   }
 }
 
-void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional)
+void Bump(GenTexture* dest, const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional)
 {
-  assert(SameSize(surface) && SameSize(normals));
+  assert(dest->SameSize(surface) && dest->SameSize(normals));
 
   sF32 L[3], H[3]; // light/halfway vector
 
@@ -1323,15 +1326,15 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
     H[2] = (L[2] + 1.0f) * scale;
   }
 
-  auto invX = 1.0f / XRes;
-  auto invY = 1.0f / YRes;
-  Pixel* out = Data;
+  auto invX = 1.0f / dest->XRes;
+  auto invY = 1.0f / dest->YRes;
+  Pixel* out = dest->Data;
   const Pixel* surf = surface.Data;
   const Pixel* normal = normals.Data;
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       // determine vectors to light
       if(!directional)
@@ -1409,7 +1412,7 @@ void GenTexture::Bump(const GenTexture& surface, const GenTexture& normals, cons
   }
 }
 
-void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput* inputs, int nInputs)
+void LinearCombine(GenTexture* dest, Pixel color, sF32 constWeight, const LinearInput* inputs, int nInputs)
 {
   int w[256], uo[256], vo[256];
 
@@ -1436,18 +1439,18 @@ void GenTexture::LinearCombine(Pixel color, sF32 constWeight, const LinearInput*
   int c_a = MulShift16(t, color.a);
 
   // calculate output image
-  int u0 = MinX;
-  int v0 = MinY;
-  int stepU = 1 << (24 - ShiftX);
-  int stepV = 1 << (24 - ShiftY);
-  Pixel* out = Data;
+  int u0 = dest->MinX;
+  int v0 = dest->MinY;
+  int stepU = 1 << (24 - dest->ShiftX);
+  int stepV = 1 << (24 - dest->ShiftY);
+  Pixel* out = dest->Data;
 
-  for(int y = 0; y < YRes; y++)
+  for(int y = 0; y < dest->YRes; y++)
   {
     int u = u0;
     int v = v0;
 
-    for(int x = 0; x < XRes; x++)
+    for(int x = 0; x < dest->XRes; x++)
     {
       // initialize accumulator with start value
       int acc_r = c_r;

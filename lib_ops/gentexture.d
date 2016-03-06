@@ -69,18 +69,18 @@ struct GenTexture
   void CoordRemap(ref const(GenTexture)in_, ref const(GenTexture)remap, float strengthU, float strengthV, int filterMode);
   void Derive(ref const(GenTexture)in_, DeriveOp op, float strength);
   void Blur(ref const(GenTexture)in_, float sizex, float sizey, int order, int mode);
-
-  // Combiners
-  void Ternary(ref const(GenTexture)in1, ref const(GenTexture)in2, ref const(GenTexture)in3, TernaryOp op);
-  void Paste(ref const(GenTexture)background, ref const(GenTexture)snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
-  void Bump(ref const(GenTexture)surface, ref const(GenTexture)normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
-  void LinearCombine(Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 };
 
 // Actual generator functions
 void Noise(GenTexture* dest, ref const(GenTexture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
 void GlowRect(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
 void Cells(GenTexture* dest, ref const(GenTexture)grad, const CellCenter* centers, int nCenters, float amp, int mode);
+
+// Combiners
+void Ternary(GenTexture* dest, ref const(GenTexture)in1, ref const(GenTexture)in2, ref const(GenTexture)in3, TernaryOp op);
+void Paste(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
+void Bump(GenTexture* dest, ref const(GenTexture)surface, ref const(GenTexture)normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
+void LinearCombine(GenTexture* dest, Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 
 enum TernaryOp
 {
