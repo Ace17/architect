@@ -226,6 +226,28 @@ void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, floa
   destroy(*oldTexture);
 }
 
+void op_mul(Picture, float f)
+{
+  foreach(i, ref pel; g_Texture.Data[0 .. g_Texture.NPixels])
+  {
+    pel.r *= f;
+    pel.g *= f;
+    pel.b *= f;
+    pel.a *= f;
+  }
+}
+
+void op_offset(Picture, float r, float g, float b, float a)
+{
+  foreach(i, ref pel; g_Texture.Data[0 .. g_Texture.NPixels])
+  {
+    pel.r += r;
+    pel.g += g;
+    pel.b += b;
+    pel.a += a;
+  }
+}
+
 gentexture.Pixel toPixel(Vec3 v)
 {
   static auto rescale(float val)
@@ -275,5 +297,7 @@ static this()
   registerOperator!(op_blur, "txt", "tblur")();
   registerOperator!(op_bump, "txt", "tbump")();
   registerOperator!(op_rect, "txt", "trect")();
+  registerOperator!(op_mul, "txt", "tmul")();
+  registerOperator!(op_offset, "txt", "toffset")();
 }
 
