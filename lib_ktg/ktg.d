@@ -144,7 +144,7 @@ enum FilterMode
   WrapV = 0,            // wrap in v direction
   ClampV = 2,           // clamp (to edge) in v direction
 
-  FilterNearest = 0,    // nearest neighbor (point sampling)
-  FilterBilinear = 4,   // bilinear filtering.
+  Nearest = 0,    // nearest neighbor (point sampling)
+  Bilinear = 4,   // bilinear filtering.
 }
 
