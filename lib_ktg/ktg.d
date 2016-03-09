@@ -54,6 +54,7 @@ struct Texture
 void Noise(Texture* dest, ref const(Texture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
 void GlowRect(Texture* dest, ref const(Texture)background, ref const(Texture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
 void Cells(Texture* dest, ref const(Texture)grad, const CellCenter* centers, int nCenters, float amp, CellMode mode);
+void Voronoi(Texture* dest, float intensity, int maxCount, float minDist);
 
 enum NoiseMode
 {
