@@ -296,7 +296,7 @@ void GlowRect(GenTexture* dest, const GenTexture& bgTex, const GenTexture& grad,
   }
 }
 
-void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, int mode)
+void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, CellMode mode)
 {
   assert(((mode & 1) == 0) ? nCenters >= 1 : nCenters >= 2);
 
