@@ -7,13 +7,15 @@ struct Pixel
   ushort r, g, b, a; // OpenGL byte order
 
   void Init(ubyte r, ubyte g, ubyte b, ubyte a);
-  void Init(uint rgba); // 0xaarrggbb (D3D style)
 }
 
 Pixel Color(int r, int g, int b, int a = 255)
 {
   Pixel result;
-  result.Init(cast(ubyte)r, cast(ubyte)g, cast(ubyte)b, cast(ubyte)a);
+  result.r = cast(ushort)((r << 8) | r);
+  result.g = cast(ushort)((g << 8) | g);
+  result.b = cast(ushort)((b << 8) | b);
+  result.a = cast(ushort)((a << 8) | a);
   return result;
 }
 

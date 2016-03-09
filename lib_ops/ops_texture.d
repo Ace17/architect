@@ -86,11 +86,14 @@ void op_load(Picture, int idx)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+const WHITE_MASK = Color(0xff, 0xff, 0xff, 0xff);
+const BLACK_MASK = Color(0, 0, 0, 0);
+
 void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
 {
   auto grad = Texture(2, 1);
-  grad.Data[0].Init(0xffffffff);
-  grad.Data[1].Init(0x00000000);
+  grad.Data[0] = WHITE_MASK;
+  grad.Data[1] = BLACK_MASK;
 
   g_Texture.Noise(grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
 }
@@ -137,8 +140,8 @@ void op_voronoi(Picture, float intensity, int maxCount, float minDist)
   CellCenter centers[256];
 
   auto grad = Texture(2, 1);
-  grad.Data[0].Init(0xffffffff);
-  grad.Data[1].Init(0x00000000);
+  grad.Data[0] = WHITE_MASK;
+  grad.Data[1] = BLACK_MASK;
 
   // generate random center points
   for(int i = 0; i < maxCount; i++)
@@ -217,8 +220,8 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv)
 {
   auto grad = Texture(2, 1);
-  grad.Data[0].Init(0xffffffff);
-  grad.Data[1].Init(0x00000000);
+  grad.Data[0] = WHITE_MASK;
+  grad.Data[1] = BLACK_MASK;
 
   auto oldTexture = g_Texture;
   g_Texture = cloneTexture(oldTexture);
