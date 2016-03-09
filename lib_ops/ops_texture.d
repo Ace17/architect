@@ -95,7 +95,7 @@ void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
   grad.Data[0] = WHITE_MASK;
   grad.Data[1] = BLACK_MASK;
 
-  g_Texture.Noise(grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
+  Noise(g_Texture, grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
 }
 
 void op_derive(Picture, float fop, float strength)
@@ -104,7 +104,7 @@ void op_derive(Picture, float fop, float strength)
   scope(exit) destroy(*src);
 
   auto op = floatToEnum!DeriveOp(fop);
-  g_Texture.Derive(*src, op, strength);
+  Derive(g_Texture, *src, op, strength);
 }
 
 void op_blur(Picture, float sizex, float sizey, int order, int mode)
@@ -112,7 +112,7 @@ void op_blur(Picture, float sizex, float sizey, int order, int mode)
   auto src = cloneTexture(g_Texture);
   scope(exit) destroy(*src);
 
-  g_Texture.Blur(*src, sizex, sizey, order, mode);
+  Blur(g_Texture, *src, sizex, sizey, order, mode);
 }
 
 Texture* cloneTexture(const Texture* oldTexture)
@@ -171,7 +171,7 @@ void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, floa
   auto src = cloneTexture(g_Texture);
   scope(exit) destroy(*src);
 
-  g_Texture.GlowRect(*src, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
+  GlowRect(g_Texture, *src, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
 }
 
 void op_mul(Picture, float f)
