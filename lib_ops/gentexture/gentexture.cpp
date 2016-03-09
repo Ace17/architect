@@ -89,11 +89,11 @@ void Pixel::CompositeScreen(Pixel x)
 
 /****************************************************************************/
 /***                                                                      ***/
-/***   GenTexture                                                         ***/
+/***   Texture                                                         ***/
 /***                                                                      ***/
 /****************************************************************************/
 
-void GenTexture::__ctor(int xres, int yres)
+void Texture::__ctor(int xres, int yres)
 {
   Data = 0;
   XRes = 0;
@@ -102,7 +102,7 @@ void GenTexture::__ctor(int xres, int yres)
   Init(xres, yres);
 }
 
-GenTexture::GenTexture()
+Texture::Texture()
 {
   Data = 0;
   XRes = 0;
@@ -111,7 +111,7 @@ GenTexture::GenTexture()
   UpdateSize();
 }
 
-GenTexture::GenTexture(int xres, int yres)
+Texture::Texture(int xres, int yres)
 {
   Data = 0;
   XRes = 0;
@@ -120,7 +120,7 @@ GenTexture::GenTexture(int xres, int yres)
   Init(xres, yres);
 }
 
-GenTexture::GenTexture(const GenTexture& x)
+Texture::Texture(const Texture& x)
 {
   XRes = x.XRes;
   YRes = x.YRes;
@@ -130,17 +130,17 @@ GenTexture::GenTexture(const GenTexture& x)
   memcpy(Data, x.Data, NPixels * sizeof(Pixel));
 }
 
-GenTexture::~GenTexture()
+Texture::~Texture()
 {
   Free();
 }
 
-void GenTexture::Free()
+void Texture::Free()
 {
   delete[] Data;
 }
 
-void GenTexture::Init(int xres, int yres)
+void Texture::Init(int xres, int yres)
 {
   if(XRes != xres || YRes != yres)
   {
@@ -157,7 +157,7 @@ void GenTexture::Init(int xres, int yres)
   }
 }
 
-void GenTexture::UpdateSize()
+void Texture::UpdateSize()
 {
   NPixels = XRes * YRes;
   ShiftX = FloorLog2(XRes);
@@ -167,7 +167,7 @@ void GenTexture::UpdateSize()
   MinY = 1 << (24 - 1 - ShiftY);
 }
 
-void GenTexture::Swap(GenTexture& x)
+void Texture::Swap(Texture& x)
 {
   swap(Data, x.Data);
   swap(XRes, x.XRes);
@@ -179,21 +179,21 @@ void GenTexture::Swap(GenTexture& x)
   swap(MinY, x.MinY);
 }
 
-GenTexture & GenTexture::operator = (const GenTexture& x)
+Texture & Texture::operator = (const Texture& x)
 {
-  GenTexture t = x;
+  Texture t = x;
 
   Swap(t);
   return *this;
 }
 
-bool GenTexture::SameSize(const GenTexture& x) const
+bool Texture::SameSize(const Texture& x) const
 {
   return XRes == x.XRes && YRes == x.YRes;
 }
 
 // ---- Sampling helpers
-void GenTexture::SampleNearest(Pixel& result, int x, int y, int wrapMode) const
+void Texture::SampleNearest(Pixel& result, int x, int y, int wrapMode) const
 {
   if(wrapMode & 1)
     x = clamp(x, MinX, 0x1000000 - MinX);
@@ -210,7 +210,7 @@ void GenTexture::SampleNearest(Pixel& result, int x, int y, int wrapMode) const
   result = Data[(iy << ShiftX) + ix];
 }
 
-void GenTexture::SampleBilinear(Pixel& result, int x, int y, int wrapMode) const
+void Texture::SampleBilinear(Pixel& result, int x, int y, int wrapMode) const
 {
   if(wrapMode & 1)
     x = clamp(x, MinX, 0x1000000 - MinX);
@@ -234,7 +234,7 @@ void GenTexture::SampleBilinear(Pixel& result, int x, int y, int wrapMode) const
   result.Lerp(fy, t0, t1);
 }
 
-void GenTexture::SampleFiltered(Pixel& result, int x, int y, int filterMode) const
+void Texture::SampleFiltered(Pixel& result, int x, int y, int filterMode) const
 {
   if(filterMode & FilterBilinear)
     SampleBilinear(result, x, y, filterMode);
@@ -242,7 +242,7 @@ void GenTexture::SampleFiltered(Pixel& result, int x, int y, int filterMode) con
     SampleNearest(result, x, y, filterMode);
 }
 
-void GenTexture::SampleGradient(Pixel& result, int x) const
+void Texture::SampleGradient(Pixel& result, int x) const
 {
   x = clamp(x, 0, 1 << 24);
   x -= x >> ShiftX; // x=(1<<24) -> Take rightmost pixel

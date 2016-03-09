@@ -16,7 +16,7 @@
 #include "gentexture.h"
 #include "helpers.h"
 
-void Ternary(GenTexture* dest, const GenTexture& in1Tex, const GenTexture& in2Tex, const GenTexture& in3Tex, TernaryOp op)
+void Ternary(Texture* dest, const Texture& in1Tex, const Texture& in2Tex, const Texture& in3Tex, TernaryOp op)
 {
   assert(dest->SameSize(in1Tex) && dest->SameSize(in2Tex) && dest->SameSize(in3Tex));
 
@@ -42,7 +42,7 @@ void Ternary(GenTexture* dest, const GenTexture& in1Tex, const GenTexture& in2Te
   }
 }
 
-void Paste(GenTexture* dest, const GenTexture& bgTex, const GenTexture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
+void Paste(Texture* dest, const Texture& bgTex, const Texture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
 {
   assert(dest->SameSize(bgTex));
 
@@ -189,7 +189,7 @@ void Paste(GenTexture* dest, const GenTexture& bgTex, const GenTexture& inTex, s
   }
 }
 
-void Bump(GenTexture* dest, const GenTexture& surface, const GenTexture& normals, const GenTexture* specular, const GenTexture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional)
+void Bump(Texture* dest, const Texture& surface, const Texture& normals, const Texture* specular, const Texture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional)
 {
   assert(dest->SameSize(surface) && dest->SameSize(normals));
 
@@ -298,7 +298,7 @@ void Bump(GenTexture* dest, const GenTexture& surface, const GenTexture& normals
   }
 }
 
-void LinearCombine(GenTexture* dest, Pixel color, sF32 constWeight, const LinearInput* inputs, int nInputs)
+void LinearCombine(Texture* dest, Pixel color, sF32 constWeight, const LinearInput* inputs, int nInputs)
 {
   int w[256], uo[256], vo[256];
 

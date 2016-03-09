@@ -23,7 +23,7 @@ alias Matrix44 = float[4][4];
 // X increases from 0 (left) to 1 (right)
 // Y increases from 0 (bottom) to 1 (top)
 
-struct GenTexture
+struct Texture
 {
   Pixel* Data;    // pointer to pixel data.
   int XRes;      // width of texture (must be a power of 2)
@@ -49,9 +49,9 @@ struct GenTexture
 ///////////////////////////////////////////////////////////////////////////////
 // Generators
 ///////////////////////////////////////////////////////////////////////////////
-void Noise(GenTexture* dest, ref const(GenTexture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
-void GlowRect(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
-void Cells(GenTexture* dest, ref const(GenTexture)grad, const CellCenter* centers, int nCenters, float amp, CellMode mode);
+void Noise(Texture* dest, ref const(Texture)grad, int freqX, int freqY, int oct, float fadeoff, int seed, NoiseMode mode);
+void GlowRect(Texture* dest, ref const(Texture)background, ref const(Texture)grad, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv);
+void Cells(Texture* dest, ref const(Texture)grad, const CellCenter* centers, int nCenters, float amp, CellMode mode);
 
 enum NoiseMode
 {
@@ -80,14 +80,14 @@ enum CellMode
 ///////////////////////////////////////////////////////////////////////////////
 // Combiners
 ///////////////////////////////////////////////////////////////////////////////
-void Ternary(GenTexture* dest, ref const(GenTexture)in1, ref const(GenTexture)in2, ref const(GenTexture)in3, TernaryOp op);
-void Paste(GenTexture* dest, ref const(GenTexture)background, ref const(GenTexture)snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
-void Bump(GenTexture* dest, ref const(GenTexture)surface, ref const(GenTexture)normals, const GenTexture* specular, const GenTexture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
-void LinearCombine(GenTexture* dest, Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
+void Ternary(Texture* dest, ref const(Texture)in1, ref const(Texture)in2, ref const(Texture)in3, TernaryOp op);
+void Paste(Texture* dest, ref const(Texture)background, ref const(Texture)snippet, float orgx, float orgy, float ux, float uy, float vx, float vy, CombineOp op, int mode);
+void Bump(Texture* dest, ref const(Texture)surface, ref const(Texture)normals, const Texture* specular, const Texture* falloff, float px, float py, float pz, float dx, float dy, float dz, Pixel ambient, Pixel diffuse, bool directional);
+void LinearCombine(Texture* dest, Pixel color, float constWeight, const LinearInput* inputs, int nInputs);
 
 struct LinearInput // one input for "linear combine".
 {
-  const(GenTexture)*Tex;    // the input texture
+  const(Texture)*Tex;    // the input texture
   float Weight;              // its weight
   float UShift, VShift;       // u/v translate parameter
   int FilterMode;          // filtering mode (as in CoordMatrixTransform)
@@ -120,12 +120,12 @@ enum TernaryOp
 ///////////////////////////////////////////////////////////////////////////////
 // Filters
 ///////////////////////////////////////////////////////////////////////////////
-void ColorMatrixTransform(GenTexture* dest, ref const(GenTexture)in_, ref Matrix44 matrix, bool clampPremult);
-void CoordMatrixTransform(GenTexture* dest, ref const(GenTexture)in_, ref Matrix44 matrix, int filterMode);
-void ColorRemap(GenTexture* dest, ref const(GenTexture)in_, ref const(GenTexture)mapR, ref const(GenTexture)mapG, ref const(GenTexture)mapB);
-void CoordRemap(GenTexture* dest, ref const(GenTexture)in_, ref const(GenTexture)remap, float strengthU, float strengthV, int filterMode);
-void Derive(GenTexture* dest, ref const(GenTexture)in_, DeriveOp op, float strength);
-void Blur(GenTexture* dest, ref const(GenTexture)in_, float sizex, float sizey, int order, int mode);
+void ColorMatrixTransform(Texture* dest, ref const(Texture)in_, ref Matrix44 matrix, bool clampPremult);
+void CoordMatrixTransform(Texture* dest, ref const(Texture)in_, ref Matrix44 matrix, int filterMode);
+void ColorRemap(Texture* dest, ref const(Texture)in_, ref const(Texture)mapR, ref const(Texture)mapG, ref const(Texture)mapB);
+void CoordRemap(Texture* dest, ref const(Texture)in_, ref const(Texture)remap, float strengthU, float strengthV, int filterMode);
+void Derive(Texture* dest, ref const(Texture)in_, DeriveOp op, float strength);
+void Blur(Texture* dest, ref const(Texture)in_, float sizex, float sizey, int order, int mode);
 
 enum DeriveOp
 {

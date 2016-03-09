@@ -27,11 +27,11 @@ struct CellCenter
 };
 
 // LinearInput. One input for "linear combine".
-struct GenTexture;
+struct Texture;
 
 struct LinearInput
 {
-  const GenTexture* Tex;    // the input texture
+  const Texture* Tex;    // the input texture
   float Weight;              // its weight
   float UShift, VShift;       // u/v translate parameter
   int FilterMode;          // filtering mode (as in CoordMatrixTransform)
@@ -109,7 +109,7 @@ enum FilterMode
   FilterBilinear = 4,   // bilinear filtering.
 };
 
-struct GenTexture
+struct Texture
 {
   Pixel* Data;    // pointer to pixel data.
   int XRes;      // width of texture (must be a power of 2)
@@ -121,20 +121,20 @@ struct GenTexture
   int MinX;      // (1 << 24) / (2 * XRes) = Min X for clamp to edge
   int MinY;      // (1 << 24) / (2 * YRes) = Min Y for clamp to edge
 
-  GenTexture();
-  GenTexture(int xres, int yres);
-  GenTexture(const GenTexture& x);
-  ~GenTexture();
+  Texture();
+  Texture(int xres, int yres);
+  Texture(const Texture& x);
+  ~Texture();
   void __ctor(int, int);
   void Free();
 
   void Init(int xres, int yres);
   void UpdateSize();
-  void Swap(GenTexture& x);
+  void Swap(Texture& x);
 
-  GenTexture & operator = (const GenTexture& x);
+  Texture & operator = (const Texture& x);
 
-  bool SameSize(const GenTexture& x) const;
+  bool SameSize(const Texture& x) const;
 
   // Sampling helpers with filtering (coords are 1.7.24 fixed point)
   void SampleNearest(Pixel& result, int x, int y, int wrapMode) const;

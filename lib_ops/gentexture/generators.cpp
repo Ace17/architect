@@ -151,7 +151,7 @@ static sF32 GNoise2(int x, int y, int maskx, int masky, int seed)
   return sum;
 }
 
-void Noise(GenTexture* dest, const GenTexture& grad, int freqX, int freqY, int oct, sF32 fadeoff, int seed, NoiseMode mode)
+void Noise(Texture* dest, const Texture& grad, int freqX, int freqY, int oct, sF32 fadeoff, int seed, NoiseMode mode)
 {
   assert(oct > 0);
 
@@ -215,7 +215,7 @@ void Noise(GenTexture* dest, const GenTexture& grad, int freqX, int freqY, int o
   }
 }
 
-void GlowRect(GenTexture* dest, const GenTexture& bgTex, const GenTexture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv)
+void GlowRect(Texture* dest, const Texture& bgTex, const Texture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv)
 {
   assert(dest->SameSize(bgTex));
 
@@ -296,7 +296,7 @@ void GlowRect(GenTexture* dest, const GenTexture& bgTex, const GenTexture& grad,
   }
 }
 
-void Cells(GenTexture* dest, const GenTexture& grad, const CellCenter* centers, int nCenters, sF32 amp, CellMode mode)
+void Cells(Texture* dest, const Texture& grad, const CellCenter* centers, int nCenters, sF32 amp, CellMode mode)
 {
   assert(((mode & 1) == 0) ? nCenters >= 1 : nCenters >= 2);
 

@@ -17,7 +17,7 @@
 #include "helpers.h"
 #include <cstring>
 
-void ColorMatrixTransform(GenTexture* dest, const GenTexture& x, Matrix44& matrix, bool clampPremult)
+void ColorMatrixTransform(Texture* dest, const Texture& x, Matrix44& matrix, bool clampPremult)
 {
   int m[4][4];
 
@@ -59,7 +59,7 @@ void ColorMatrixTransform(GenTexture* dest, const GenTexture& x, Matrix44& matri
   }
 }
 
-void CoordMatrixTransform(GenTexture* dest, const GenTexture& in, Matrix44& matrix, int mode)
+void CoordMatrixTransform(Texture* dest, const Texture& in, Matrix44& matrix, int mode)
 {
   int scaleX = 1 << (24 - dest->ShiftX);
   int scaleY = 1 << (24 - dest->ShiftY);
@@ -92,7 +92,7 @@ void CoordMatrixTransform(GenTexture* dest, const GenTexture& in, Matrix44& matr
   }
 }
 
-void ColorRemap(GenTexture* dest, const GenTexture& inTex, const GenTexture& mapR, const GenTexture& mapG, const GenTexture& mapB)
+void ColorRemap(Texture* dest, const Texture& inTex, const Texture& mapR, const Texture& mapG, const Texture& mapB)
 {
   assert(dest->SameSize(inTex));
 
@@ -133,7 +133,7 @@ void ColorRemap(GenTexture* dest, const GenTexture& inTex, const GenTexture& map
   }
 }
 
-void CoordRemap(GenTexture* dest, const GenTexture& in, const GenTexture& remapTex, sF32 strengthU, sF32 strengthV, int mode)
+void CoordRemap(Texture* dest, const Texture& in, const Texture& remapTex, sF32 strengthU, sF32 strengthV, int mode)
 {
   assert(dest->SameSize(remapTex));
 
@@ -167,7 +167,7 @@ void CoordRemap(GenTexture* dest, const GenTexture& in, const GenTexture& remapT
   }
 }
 
-void Derive(GenTexture* dest, const GenTexture& in, DeriveOp op, sF32 strength)
+void Derive(Texture* dest, const Texture& in, DeriveOp op, sF32 strength)
 {
   assert(dest->SameSize(in));
 
@@ -304,7 +304,7 @@ static void Blur1DBuffer(Pixel* dst, const Pixel* src, int width, int sizeFixed,
   }
 }
 
-void Blur(GenTexture* dest, const GenTexture& inImg, sF32 sizex, sF32 sizey, int order, int wrapMode)
+void Blur(Texture* dest, const Texture& inImg, sF32 sizex, sF32 sizey, int order, int wrapMode)
 {
   assert(dest->SameSize(inImg));
 
@@ -329,7 +329,7 @@ void Blur(GenTexture* dest, const GenTexture& inImg, sF32 sizex, sF32 sizey, int
 
   Pixel* buf1 = buf1_mem.data();
   Pixel* buf2 = buf2_mem.data();
-  const GenTexture* input = &inImg;
+  const Texture* input = &inImg;
 
   // horizontal blur
   if(sizePixX > 32)

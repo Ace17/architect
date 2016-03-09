@@ -25,8 +25,8 @@ import value;
 import dashboard_picture;
 import gentexture;
 
-static __gshared GenTexture* g_Texture;
-static __gshared GenTexture*[16] g_Textures;
+static __gshared Texture* g_Texture;
+static __gshared Texture*[16] g_Textures;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ void op_texture(EditionState state, Value[] values)
 
   size.x = max(size.x, 16);
   size.y = max(size.y, 16);
-  g_Texture = new GenTexture(cast(int)size.x, cast(int)size.y);
+  g_Texture = new Texture(cast(int)size.x, cast(int)size.y);
 
   for(int i = 0; i < g_Texture.NPixels; ++i)
   {
@@ -88,7 +88,7 @@ void op_load(Picture, int idx)
 
 void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
 {
-  auto grad = GenTexture(2, 1);
+  auto grad = Texture(2, 1);
   grad.Data[0].Init(0xffffffff);
   grad.Data[1].Init(0x00000000);
 
@@ -112,9 +112,9 @@ void op_blur(Picture, float sizex, float sizey, int order, int mode)
   destroy(*oldTexture);
 }
 
-GenTexture* cloneTexture(const GenTexture* oldTexture)
+Texture* cloneTexture(const Texture* oldTexture)
 {
-  auto pText = new GenTexture(oldTexture.XRes, oldTexture.YRes);
+  auto pText = new Texture(oldTexture.XRes, oldTexture.YRes);
 
   for(int i = 0; i < pText.NPixels; ++i)
     pText.Data[i] = oldTexture.Data[i];
@@ -136,7 +136,7 @@ void op_voronoi(Picture, float intensity, int maxCount, float minDist)
   maxCount = min(256, maxCount);
   CellCenter centers[256];
 
-  auto grad = GenTexture(2, 1);
+  auto grad = Texture(2, 1);
   grad.Data[0].Init(0xffffffff);
   grad.Data[1].Init(0x00000000);
 
@@ -216,7 +216,7 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 
 void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv)
 {
-  auto grad = GenTexture(2, 1);
+  auto grad = Texture(2, 1);
   grad.Data[0].Init(0xffffffff);
   grad.Data[1].Init(0x00000000);
 
@@ -268,7 +268,7 @@ gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
   return result;
 }
 
-GenTexture* getStoredTexture(int idx)
+Texture* getStoredTexture(int idx)
 {
   const otherId = clampTextureIndex(idx);
   auto other = g_Textures[otherId];
