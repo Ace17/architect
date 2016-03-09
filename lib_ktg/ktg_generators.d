@@ -1,4 +1,5 @@
 import std.random;
+import std.math;
 import std.algorithm;
 import ktg;
 
@@ -40,17 +41,8 @@ void Voronoi(Texture* dest, float intensity, int maxCount, float minDist)
 
     for(j = 0; j < i; j++)
     {
-      auto dx = centers[j].x - x;
-      auto dy = centers[j].y - y;
-
-      if(dx < 0.0f)
-        dx += 1.0f;
-
-      if(dy < 0.0f)
-        dy += 1.0f;
-
-      dx = min(dx, 1.0f - dx);
-      dy = min(dy, 1.0f - dy);
+      const dx = abs(centers[j].x - x);
+      const dy = abs(centers[j].y - y);
 
       if(dx * dx + dy * dy < minDistSq) // point is too close, stop
         break;
