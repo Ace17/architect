@@ -100,19 +100,19 @@ void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
 
 void op_derive(Picture, float fop, float strength)
 {
-  auto oldTexture = g_Texture;
-  g_Texture = cloneTexture(oldTexture);
+  auto src = cloneTexture(g_Texture);
+  scope(exit) destroy(*src);
+
   auto op = floatToEnum!DeriveOp(fop);
-  g_Texture.Derive(*oldTexture, op, strength);
-  destroy(*oldTexture);
+  g_Texture.Derive(*src, op, strength);
 }
 
 void op_blur(Picture, float sizex, float sizey, int order, int mode)
 {
-  auto oldTexture = g_Texture;
-  g_Texture = cloneTexture(oldTexture);
-  g_Texture.Blur(*oldTexture, sizex, sizey, order, mode);
-  destroy(*oldTexture);
+  auto src = cloneTexture(g_Texture);
+  scope(exit) destroy(*src);
+
+  g_Texture.Blur(*src, sizex, sizey, order, mode);
 }
 
 Texture* cloneTexture(const Texture* oldTexture)
@@ -211,10 +211,10 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
   if(other.NPixels != g_Texture.NPixels)
     throw new Exception("Texture must have the same size");
 
-  auto oldTexture = g_Texture;
-  g_Texture = cloneTexture(oldTexture);
-  Bump(g_Texture, *oldTexture, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
-  destroy(*oldTexture);
+  auto src = cloneTexture(g_Texture);
+  scope(exit) destroy(*src);
+
+  Bump(g_Texture, *src, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
 }
 
 void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv)
@@ -223,10 +223,10 @@ void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, floa
   grad.Data[0] = WHITE_MASK;
   grad.Data[1] = BLACK_MASK;
 
-  auto oldTexture = g_Texture;
-  g_Texture = cloneTexture(oldTexture);
-  g_Texture.GlowRect(*oldTexture, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
-  destroy(*oldTexture);
+  auto src = cloneTexture(g_Texture);
+  scope(exit) destroy(*src);
+
+  g_Texture.GlowRect(*src, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
 }
 
 void op_mul(Picture, float f)
