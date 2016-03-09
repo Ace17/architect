@@ -95,7 +95,7 @@ void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
   grad.Data[0] = WHITE_MASK;
   grad.Data[1] = BLACK_MASK;
 
-  Noise(g_Texture, grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.NoiseDirect | NoiseMode.NoiseBandlimit | NoiseMode.NoiseNormalize);
+  Noise(g_Texture, grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.Direct | NoiseMode.Bandlimit | NoiseMode.Normalize);
 }
 
 void op_derive(Picture, float fop, float strength)

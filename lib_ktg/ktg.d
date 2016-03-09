@@ -58,14 +58,14 @@ void Voronoi(Texture* dest, float intensity, int maxCount, float minDist);
 
 enum NoiseMode
 {
-  NoiseDirect = 0,      // use noise(x,y) directly
-  NoiseAbs = 1,         // use abs(noise(x,y))
+  Direct = 0,      // use noise(x,y) directly
+  Abs = 1,         // use abs(noise(x,y))
 
-  NoiseUnnorm = 0,      // unnormalized (no further scaling)
-  NoiseNormalize = 2,   // normalized (scale so values always fall into [0,1] with no clamping)
+  Unnorm = 0,      // unnormalized (no further scaling)
+  Normalize = 2,   // normalized (scale so values always fall into [0,1] with no clamping)
 
-  NoiseWhite = 0,       // white noise function
-  NoiseBandlimit = 4,   // bandlimited (perlin-like) noise function
+  White = 0,       // white noise function
+  Bandlimit = 4,   // bandlimited (perlin-like) noise function
 }
 
 struct CellCenter
@@ -76,8 +76,8 @@ struct CellCenter
 
 enum CellMode
 {
-  CellInner, // inner (distance to cell center)
-  CellOuter, // outer (distance to edge)
+  Inner, // inner (distance to cell center)
+  Outer, // outer (distance to edge)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -99,25 +99,25 @@ struct LinearInput // one input for "linear combine".
 enum CombineOp
 {
   // simple arithmetic
-  CombineAdd,       // x=saturate(a+b)
-  CombineSub,       // x=saturate(a-b)
-  CombineMulC,      // x=a*b
-  CombineMin,       // x=min(a,b)
-  CombineMax,       // x=max(a,b)
-  CombineSetAlpha,  // x.rgb=a.rgb, x.a=b.r
-  CombinePreAlpha,  // x.rgb=a.rgb*b.r, x.a=b.r
+  Add,       // x=saturate(a+b)
+  Sub,       // x=saturate(a-b)
+  MulC,      // x=a*b
+  Min,       // x=min(a,b)
+  Max,       // x=max(a,b)
+  SetAlpha,  // x.rgb=a.rgb, x.a=b.r
+  PreAlpha,  // x.rgb=a.rgb*b.r, x.a=b.r
 
-  CombineOver,      // x=b over a
-  CombineMultiply,
-  CombineScreen,
-  CombineDarken,
-  CombineLighten,
+  Over,      // x=b over a
+  Multiply,
+  Screen,
+  Darken,
+  Lighten,
 }
 
 enum TernaryOp
 {
-  TernaryLerp,  // (1-c.r) * a + c.r * b
-  TernarySelect,
+  Lerp,  // (1-c.r) * a + c.r * b
+  Select,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,8 +132,8 @@ void Blur(Texture* dest, ref const(Texture)in_, float sizex, float sizey, int or
 
 enum DeriveOp
 {
-  DeriveGradient,
-  DeriveNormals,
+  Gradient,
+  Normals,
 }
 
 enum FilterMode

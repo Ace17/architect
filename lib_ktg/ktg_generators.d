@@ -55,6 +55,6 @@ void Voronoi(Texture* dest, float intensity, int maxCount, float minDist)
   }
 
   // generate the image
-  dest.Cells(grad, centers.ptr, maxCount, 0.0f, CellMode.CellInner);
+  dest.Cells(grad, centers.ptr, maxCount, 0.0f, CellMode.Inner);
 }
 
