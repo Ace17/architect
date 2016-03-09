@@ -20,9 +20,9 @@ srcs:=\
 	$(THIS)/raii.d\
 	$(THIS)/value.d\
 	$(THIS)/vect.d\
-	$(THIS)/gentexture.d\
-	$(THIS)/gentexture/combiners.cpp\
-	$(THIS)/gentexture/filters.cpp\
-	$(THIS)/gentexture/generators.cpp\
-	$(THIS)/gentexture/gentexture.cpp\
+	$(THIS)/ktg.d\
+	$(THIS)/ktg/combiners.cpp\
+	$(THIS)/ktg/filters.cpp\
+	$(THIS)/ktg/generators.cpp\
+	$(THIS)/ktg/gentexture.cpp\
 

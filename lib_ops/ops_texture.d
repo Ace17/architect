@@ -23,7 +23,7 @@ import misc;
 import execute;
 import value;
 import dashboard_picture;
-import gentexture;
+import ktg;
 
 static __gshared Texture* g_Texture;
 static __gshared Texture*[16] g_Textures;
@@ -251,19 +251,19 @@ void op_offset(Picture, float r, float g, float b, float a)
   }
 }
 
-gentexture.Pixel toPixel(Vec3 v)
+ktg.Pixel toPixel(Vec3 v)
 {
   static auto rescale(float val)
   {
     return cast(ubyte) clamp(val* 256, 0, 255);
   }
 
-  return gentexture.Color(rescale(v.x), rescale(v.y), rescale(v.z));
+  return ktg.Color(rescale(v.x), rescale(v.y), rescale(v.z));
 }
 
-gentexture.Pixel mix(gentexture.Pixel A, gentexture.Pixel B, float alpha)
+ktg.Pixel mix(ktg.Pixel A, ktg.Pixel B, float alpha)
 {
-  gentexture.Pixel result;
+  ktg.Pixel result;
   result.r = cast(ushort) blend(cast(float)A.r, cast(float)B.b, alpha);
   result.g = cast(ushort) blend(cast(float)A.g, cast(float)B.g, alpha);
   result.b = cast(ushort) blend(cast(float)A.b, cast(float)B.b, alpha);
