@@ -12,17 +12,17 @@ root()
   tload(0);
   repeat(rectRow, 0);
   tderive(1, 0.8);
-  tmul(10);
-  tstore(2);
+ // tmul(10);
+//  tstore(2);
   
-  tload(1);
-  tbump(2,
-    Vec3(1.5, 1.5, 0.1), // p
-    Vec3(1, 1, 1), // d
-    Vec3(0.4, 0.4, 0.4), // ambient
-    Vec3(0.4, 0.4, 0.4)); // diffuse
+//  tload(1);
+//  tbump(2,
+//    Vec3(1.5, 1.5, 0.1), // p
+//    Vec3(1, 1, 1), // d
+//    Vec3(0.4, 0.4, 0.4), // ambient
+//    Vec3(0.4, 0.4, 0.4)); // diffuse
     
-  tload(1);
+//  tload(1);
   display();
 }
 

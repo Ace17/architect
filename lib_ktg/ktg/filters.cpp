@@ -37,10 +37,14 @@ void ColorMatrixTransform(Texture* dest, const Texture& x, Matrix44& matrix, boo
     auto& out = dest->Data[i];
     auto in = x.Data[i];
 
-    auto r = MulShift16(m[0][0], in.r) + MulShift16(m[0][1], in.g) + MulShift16(m[0][2], in.b) + MulShift16(m[0][3], in.a);
-    auto g = MulShift16(m[1][0], in.r) + MulShift16(m[1][1], in.g) + MulShift16(m[1][2], in.b) + MulShift16(m[1][3], in.a);
-    auto b = MulShift16(m[2][0], in.r) + MulShift16(m[2][1], in.g) + MulShift16(m[2][2], in.b) + MulShift16(m[2][3], in.a);
-    auto a = MulShift16(m[3][0], in.r) + MulShift16(m[3][1], in.g) + MulShift16(m[3][2], in.b) + MulShift16(m[3][3], in.a);
+    auto r = MulShift16(m[0][0], in.r) + MulShift16(m[0][1], in.g) + MulShift16(m[0][2], in.b) + MulShift16(m[0][3],
+                                                                                                            in.a);
+    auto g = MulShift16(m[1][0], in.r) + MulShift16(m[1][1], in.g) + MulShift16(m[1][2], in.b) + MulShift16(m[1][3],
+                                                                                                            in.a);
+    auto b = MulShift16(m[2][0], in.r) + MulShift16(m[2][1], in.g) + MulShift16(m[2][2], in.b) + MulShift16(m[2][3],
+                                                                                                            in.a);
+    auto a = MulShift16(m[3][0], in.r) + MulShift16(m[3][1], in.g) + MulShift16(m[3][2], in.b) + MulShift16(m[3][3],
+                                                                                                            in.a);
 
     if(clampPremult)
     {

@@ -42,7 +42,8 @@ void Ternary(Texture* dest, const Texture& in1Tex, const Texture& in2Tex, const 
   }
 }
 
-void Paste(Texture* dest, const Texture& bgTex, const Texture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, CombineOp op, int mode)
+void Paste(Texture* dest, const Texture& bgTex, const Texture& inTex, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx,
+           sF32 vy, CombineOp op, int mode)
 {
   assert(dest->SameSize(bgTex));
 
@@ -189,7 +190,9 @@ void Paste(Texture* dest, const Texture& bgTex, const Texture& inTex, sF32 orgx,
   }
 }
 
-void Bump(Texture* dest, const Texture& surface, const Texture& normals, const Texture* specular, const Texture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse, bool directional)
+void Bump(Texture* dest, const Texture& surface, const Texture& normals, const Texture* specular,
+          const Texture* falloffMap, sF32 px, sF32 py, sF32 pz, sF32 dx, sF32 dy, sF32 dz, Pixel ambient, Pixel diffuse,
+          bool directional)
 {
   assert(dest->SameSize(surface) && dest->SameSize(normals));
 

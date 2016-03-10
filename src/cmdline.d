@@ -8,7 +8,8 @@ Config parseCmdLine(string[] args)
 
   auto optionParser = new CmdLineOptions;
   optionParser.addOption("h", "help", &cfg.bHelp, "shows this screen");
-  optionParser.addOption("c", "chunks", &cfg.numChunks, "sets the number of chunks per audio buffer. A higher number will increase latency.");
+  optionParser.addOption("c", "chunks", &cfg.numChunks,
+                         "sets the number of chunks per audio buffer. A higher number will increase latency.");
 
   optionParser.parse(args);
 

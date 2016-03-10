@@ -12,7 +12,7 @@ echo "Reformatting..."
 
 function list_files
 {
-  find src lib_ops -name "*.d"
+  find src lib_ops lib_ktg -name "*.d" -or -name "*.cpp" -or -name "*.h"
 }
 
 list_files | while read f; do

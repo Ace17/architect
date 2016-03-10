@@ -82,7 +82,8 @@ public:
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     const texCoordLoc = glGetAttribLocation(programId, "a_texCoord");
     glEnableVertexAttribArray(texCoordLoc);
-    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof));
+    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof,
+                          cast(GLvoid*)(6 * GLfloat.sizeof));
 
     glDrawArrays(GL_TRIANGLES, 0, m_length);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -157,7 +158,8 @@ private:
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     glEnableVertexAttribArray(texCoordLoc);
-    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof));
+    glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof,
+                          cast(GLvoid*)(6 * GLfloat.sizeof));
 
     glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -257,7 +259,8 @@ public:
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     (glEnableVertexAttribArray(texCoordLoc));
-    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof)));
+    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof,
+                           cast(GLvoid*)(6 * GLfloat.sizeof)));
 
     glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -374,7 +377,8 @@ public:
 
     // connect the uv coords to the "v_texCoord" attribute of the vertex shader
     (glEnableVertexAttribArray(texCoordLoc));
-    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof, cast(GLvoid*)(6 * GLfloat.sizeof)));
+    (glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, GL_TRUE, VERTEX_SIZE * GLfloat.sizeof,
+                           cast(GLvoid*)(6 * GLfloat.sizeof)));
 
     glDrawArrays(GL_TRIANGLES, 0, cast(int)lines.length / VERTEX_SIZE);
     glBindTexture(GL_TEXTURE_2D, 0);

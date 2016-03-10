@@ -6,7 +6,7 @@ import ktg;
 const WHITE_MASK = Color(0xff, 0xff, 0xff, 0xff);
 const BLACK_MASK = Color(0, 0, 0, 0);
 
-extern(C++):
+extern(C++) :
 void Voronoi(Texture* dest, float intensity, int maxCount, float minDist)
 {
   Random gen;

@@ -215,7 +215,8 @@ void Noise(Texture* dest, const Texture& grad, int freqX, int freqY, int oct, sF
   }
 }
 
-void GlowRect(Texture* dest, const Texture& bgTex, const Texture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx, sF32 vy, sF32 rectu, sF32 rectv)
+void GlowRect(Texture* dest, const Texture& bgTex, const Texture& grad, sF32 orgx, sF32 orgy, sF32 ux, sF32 uy, sF32 vx,
+              sF32 vy, sF32 rectu, sF32 rectv)
 {
   assert(dest->SameSize(bgTex));
 

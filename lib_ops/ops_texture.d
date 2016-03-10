@@ -95,7 +95,8 @@ void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
   grad.Data[0] = WHITE_MASK;
   grad.Data[1] = BLACK_MASK;
 
-  Noise(g_Texture, grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123, NoiseMode.Direct | NoiseMode.Bandlimit | NoiseMode.Normalize);
+  Noise(g_Texture, grad, to!int (freqx), to!int (freqy), to!int (octaves), falloff, 123,
+        NoiseMode.Direct | NoiseMode.Bandlimit | NoiseMode.Normalize);
 }
 
 void op_derive(Picture, float fop, float strength)
@@ -159,7 +160,8 @@ void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
   auto src = cloneTexture(g_Texture);
   scope(exit) destroy(*src);
 
-  Bump(g_Texture, *src, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(diffuse), directional ? 1 : 0);
+  Bump(g_Texture, *src, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(
+         diffuse), directional ? 1 : 0);
 }
 
 void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, float vy, float rectu, float rectv)
