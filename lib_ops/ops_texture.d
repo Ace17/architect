@@ -149,18 +149,21 @@ void op_mix(Picture, int idx, float alpha)
     pel = mix(pel, other.Data[i], alpha);
 }
 
-void op_bump(Picture, int idx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
+void op_bump(Picture, int baseTexIdx, int bumpMapIdx, Vec3 p, Vec3 d, Vec3 ambient, Vec3 diffuse)
 {
   int directional = 1;
-  const other = getStoredTexture(idx);
 
-  if(other.NPixels != g_Texture.NPixels)
+  const baseTex = getStoredTexture(baseTexIdx);
+
+  if(baseTex.NPixels != g_Texture.NPixels)
     throw new Exception("Texture must have the same size");
 
-  auto src = cloneTexture(g_Texture);
-  scope(exit) destroy(*src);
+  const bumpMap = getStoredTexture(bumpMapIdx);
 
-  Bump(g_Texture, *src, *other, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(
+  if(bumpMap.NPixels != g_Texture.NPixels)
+    throw new Exception("Texture must have the same size");
+
+  Bump(g_Texture, *baseTex, *bumpMap, null, null, p.x, p.y, p.z, d.x, d.y, d.z, toPixel(ambient), toPixel(
          diffuse), directional ? 1 : 0);
 }
 

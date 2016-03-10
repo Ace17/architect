@@ -5,24 +5,24 @@ root()
   tstore(0);
 
   tnoise(5, 6, 5, 3);
-  tmul(0.1);
+  tblur(0.01, 0.01, 0.7, 0);
   tstore(1);
 
 
   tload(0);
   repeat(rectRow, 0);
   tderive(1, 0.8);
- // tmul(10);
-//  tstore(2);
+  tmul(2);
+  tstore(2);
   
-//  tload(1);
-//  tbump(2,
-//    Vec3(1.5, 1.5, 0.1), // p
-//    Vec3(1, 1, 1), // d
-//    Vec3(0.4, 0.4, 0.4), // ambient
-//    Vec3(0.4, 0.4, 0.4)); // diffuse
+  tmul(0);
+  
+  tbump(1, 2,
+    Vec3(0, 0, 0), // p
+    Vec3(-2, 0.8, -3.6), // d
+    Vec3(0.1, 0.1, 0.1), // ambient
+    Vec3(1, 1, 1)); // diffuse
     
-//  tload(1);
   display();
 }
 
