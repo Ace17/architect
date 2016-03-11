@@ -15,8 +15,6 @@ root()
   tmul(2);
   tstore(2);
   
-  tmul(0);
-  
   tbump(1, 2,
     Vec3(0, 0, 0), // p
     Vec3(-2, 0.8, -3.6), // d

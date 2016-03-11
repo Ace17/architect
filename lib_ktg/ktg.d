@@ -128,6 +128,7 @@ enum TernaryOp
 ///////////////////////////////////////////////////////////////////////////////
 // Filters
 ///////////////////////////////////////////////////////////////////////////////
+void Rotozoom(Texture* dest, ref const(Texture)in_, float angle, float zoom, int filterMode);
 void ColorMatrixTransform(Texture* dest, ref const(Texture)in_, ref Matrix44 matrix, bool clampPremult);
 void CoordMatrixTransform(Texture* dest, ref const(Texture)in_, ref Matrix44 matrix, int filterMode);
 void ColorRemap(Texture* dest, ref const(Texture)in_, ref const(Texture)mapR, ref const(Texture)mapG,
