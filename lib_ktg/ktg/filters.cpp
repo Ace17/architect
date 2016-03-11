@@ -184,8 +184,14 @@ void Derive(Texture* dest, const Texture& in, DeriveOp op, sF32 strength)
   {
     for(int x = 0; x < XRes; x++)
     {
-      int dx2 = in.Data[y * XRes + ((x + 1) & (XRes - 1))].r - in.Data[y * XRes + ((x - 1) & (XRes - 1))].r;
-      int dy2 = in.Data[x + ((y + 1) & (YRes - 1)) * XRes].r - in.Data[x + ((y - 1) & (YRes - 1)) * XRes].r;
+      auto const ax = y * XRes + ((x + 1) & (XRes - 1));
+      auto const bx = y * XRes + ((x - 1) & (XRes - 1));
+      auto const dx2 = in.Data[ax].r - in.Data[bx].r;
+
+      auto const ay = x + ((y + 1) & (YRes - 1)) * XRes;
+      auto const by = x + ((y - 1) & (YRes - 1)) * XRes;
+      auto const dy2 = in.Data[ay].r - in.Data[by].r;
+
       sF32 dx = dx2 * strength / (2 * 65535.0f);
       sF32 dy = dy2 * strength / (2 * 65535.0f);
       switch(op)
