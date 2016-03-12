@@ -201,6 +201,14 @@ void op_offset(Picture, float r, float g, float b, float a)
   }
 }
 
+void op_rotozoom(Picture, float angle, float zoom)
+{
+  auto src = cloneTexture(g_Texture);
+  scope(exit) destroy(*src);
+
+  Rotozoom(g_Texture, *src, angle, zoom, FilterMode.WrapU | FilterMode.WrapV | FilterMode.Bilinear);
+}
+
 ktg.Pixel toPixel(Vec3 v)
 {
   static auto rescale(float val)
@@ -252,5 +260,6 @@ static this()
   registerOperator!(op_rect, "txt", "trect")();
   registerOperator!(op_mul, "txt", "tmul")();
   registerOperator!(op_offset, "txt", "toffset")();
+  registerOperator!(op_rotozoom, "txt", "trotozoom")();
 }
 

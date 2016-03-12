@@ -11,6 +11,7 @@ root()
 
   tload(0);
   repeat(rectRow, 0);
+  trotozoom(0.03, 2);
   tderive(1, 0.8);
   tmul(2);
   tstore(2);
