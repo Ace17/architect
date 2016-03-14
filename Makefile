@@ -19,7 +19,7 @@ include src/project.mk
 # Project: lib_ops
 #------------------------------------------------------------------------------
 include $(BIN)/lib_ops/project.mk
-include $(BIN)/lib_ktg/project.mk
+include $(BIN)/extra/lib_ktg/project.mk
 
 #------------------------------------------------------------------------------
 # Project: lib_algo
@@ -43,7 +43,7 @@ SRCS:=\
   $(architect-gui.srcs)\
   $(extra/lib_algo.srcs)\
   $(lib_ops.srcs)\
-  $(lib_ktg.srcs)\
+  $(extra/lib_ktg.srcs)\
 
 GUI_OBJS:=$(SRCS:%.d=$(BIN)/%_d.o)
 GUI_OBJS:=$(GUI_OBJS:%.cpp=$(BIN)/%_cpp.o)
@@ -54,7 +54,7 @@ SRCS:=\
   $(architect.srcs)\
   $(extra/lib_algo.srcs)\
   $(lib_ops.srcs)\
-  $(lib_ktg.srcs)\
+  $(extra/lib_ktg.srcs)\
 
 OBJS:=$(SRCS:%.d=$(BIN)/%_d.o)
 OBJS:=$(OBJS:%.cpp=$(BIN)/%_cpp.o)
@@ -65,8 +65,8 @@ TARGETS+=$(BIN)/architect.exe
 
 DFLAGS+=-Isrc
 DFLAGS+=-Ilib_ops
-DFLAGS+=-Ilib_ktg
 
+DFLAGS+=-Iextra/lib_ktg
 DFLAGS+=-Iextra/lib_sdl
 DFLAGS+=-Iextra/lib_algo
 
