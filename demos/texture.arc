@@ -11,12 +11,12 @@ root()
   
   tload(1);
   
-  let ambient = Vec3(0.2, 0.5, 0);
+  let ambient = Vec3(0.2, 0.5, 0.3);
   let diffuse = Vec3(0.5, 0.1, 0.1);
   let p = Vec3(1, 0.5, 0.1);
   let d = Vec3(1, 0.5, 0.4);
-  tbump(2, p, d, ambient, diffuse);
+  tbump(2, 1, p, d, ambient, diffuse);
 //  tblur(0.01, 0.01, 5, 0.1);
-  trect(0.5, 0.5, 0.2, 0, 0, 0.2, 0.6, 0.6);
+  trect(0.5, 0.5, 0.2, 0, 0, 0.2, 0.8, 0.8);
   display();
 }

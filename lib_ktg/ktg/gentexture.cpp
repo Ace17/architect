@@ -146,9 +146,6 @@ void Texture::Init(int xres, int yres)
   {
     delete[] Data;
 
-    assert(IsPowerOf2(xres));
-    assert(IsPowerOf2(yres));
-
     XRes = xres;
     YRes = yres;
     UpdateSize();
