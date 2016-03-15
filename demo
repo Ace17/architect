@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 make -j`nproc`
-./bin/architect-gui.exe demos/texture.arc
+./bin/architect-gui.exe demos/texture-panels.arc

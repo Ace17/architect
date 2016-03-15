@@ -101,19 +101,18 @@ void op_noise(Picture, float freqx, float freqy, float octaves, float falloff)
 
 void op_derive(Picture, float fop, float strength)
 {
-  auto src = cloneTexture(g_Texture);
-  scope(exit) destroy(*src);
-
   auto op = floatToEnum!DeriveOp(fop);
-  Derive(g_Texture, *src, op, strength);
+
+  auto dst = Texture(g_Texture.XRes, g_Texture.YRes);
+  Derive(&dst, *g_Texture, op, strength);
+  std.algorithm.swap(dst, *g_Texture);
 }
 
 void op_blur(Picture, float sizex, float sizey, int order, int mode)
 {
-  auto src = cloneTexture(g_Texture);
-  scope(exit) destroy(*src);
-
-  Blur(g_Texture, *src, sizex, sizey, order, mode);
+  auto dst = Texture(g_Texture.XRes, g_Texture.YRes);
+  Blur(&dst, *g_Texture, sizex, sizey, order, mode);
+  std.algorithm.swap(dst, *g_Texture);
 }
 
 Texture* cloneTexture(const Texture* oldTexture)
@@ -173,10 +172,9 @@ void op_rect(Picture, float orgx, float orgy, float ux, float uy, float vx, floa
   grad.Data[0] = WHITE_MASK;
   grad.Data[1] = BLACK_MASK;
 
-  auto src = cloneTexture(g_Texture);
-  scope(exit) destroy(*src);
-
-  GlowRect(g_Texture, *src, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
+  auto dst = Texture(g_Texture.XRes, g_Texture.YRes);
+  GlowRect(&dst, *g_Texture, grad, orgx, orgy, ux, uy, vx, vy, rectu, rectv);
+  std.algorithm.swap(dst, *g_Texture);
 }
 
 void op_mul(Picture, float f)
@@ -203,10 +201,9 @@ void op_offset(Picture, float r, float g, float b, float a)
 
 void op_rotozoom(Picture, float angle, float zoom)
 {
-  auto src = cloneTexture(g_Texture);
-  scope(exit) destroy(*src);
-
-  Rotozoom(g_Texture, *src, angle, zoom, FilterMode.WrapU | FilterMode.WrapV | FilterMode.Bilinear);
+  auto dst = Texture(g_Texture.XRes, g_Texture.YRes);
+  Rotozoom(&dst, *g_Texture, angle, zoom, FilterMode.WrapU | FilterMode.WrapV | FilterMode.Bilinear);
+  std.algorithm.swap(dst, *g_Texture);
 }
 
 ktg.Pixel toPixel(Vec3 v)
