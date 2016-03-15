@@ -4,25 +4,31 @@ root()
   texture(Vec2(256, 256));
   tstore(0);
 
-  tnoise(5, 6, 5, 3);
-  tblur(0.01, 0.01, 0.7, 0);
-  tstore(1);
-
-
-  tload(0);
-  repeat(rectRow, 0);
-  trotozoom(0.03, 2);
-  tderive(1, 0.8);
-  tmul(2);
+  flatPanels();
   tstore(2);
   
+  tnoise(2, 2, 6, 0.8);
+  tstore(1);
+
   tbump(1, 2,
-    Vec3(0, 0, 0), // p
-    Vec3(-2, 0.8, -3.6), // d
-    Vec3(0.1, 0.1, 0.1), // ambient
-    Vec3(1, 1, 1)); // diffuse
-    
+      Vec3(0, 0, 0), // p
+      Vec3(-2, 0.8, -3.7), // d
+      Vec3(0.1, 0.1, 0.1), // ambient
+      Vec3(1, 1, 1)); // diffuse
+
+  tmix(3, 0.06);
+  //tload(2);
   display();
+}
+
+flatPanels()
+{
+  tload(0);
+  repeat(rectRow, 0);
+  trect(0.49, 0.49, 0.33, 0, 0, 0.33, 1, 1);
+  tstore(3);
+  tderive(1, 0.4);
+  tmul(2);
 }
 
 rectRow(row, arg)
