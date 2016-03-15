@@ -103,40 +103,9 @@ enum TK
 private:
 Token nextToken(string s)
 {
-  struct Rule
-  {
-    string regex;
-    TK type;
-  }
-
-  immutable Rule[] Rules =
-  [
-    { r"^-?[0-9]*\.[0-9]+f?", TK.Float },
-    { r"^-?[0-9]+", TK.Number },
-    { "^let", TK.Let },
-    { r"^[a-zA-Z0-9_]+", TK.Identifier },
-    { r"^;", TK.Semicolon },
-    { r"^\.", TK.Dot },
-    { r"^\=", TK.Equal },
-    { r"^\s+", TK.White },
-    { "^//.*\n", TK.White }, // C++ style comments
-    { r"^,", TK.Comma },
-    { r"^\+", TK.Plus },
-    { r"^\*", TK.Mul },
-    { r"^\/", TK.Div },
-    { r"^\%", TK.Mod },
-    { r"^-", TK.Minus },
-    { r"^\(", TK.LeftPar },
-    { r"^\)", TK.RightPar },
-    { r"^\{", TK.LeftBrace },
-    { r"^\}", TK.RightBrace },
-    { r"^\[", TK.LeftBracket },
-    { r"^\]", TK.RightBracket },
-  ];
-
   foreach(rule; Rules)
   {
-    auto m = match(s, rule.regex);
+    auto m = match(s, rule.reg);
 
     if(m.empty())
       continue;
@@ -154,4 +123,44 @@ Token nextToken(string s)
 
   throw new Exception(format("Unrecognized token: '%s'", s));
 }
+
+private:
+struct Rule
+{
+  StaticRegex!char reg;
+  TK type;
+}
+
+Rule mkRule(alias formula, TK type_)()
+{
+  Rule r;
+  r.reg = ctRegex!(formula);
+  r.type = type_;
+  return r;
+}
+
+static Rule[] Rules =
+[
+  mkRule!(r"^-?[0-9]*\.[0-9]+f?", TK.Float),
+  mkRule!(r"^-?[0-9]+", TK.Number),
+  mkRule!("^let", TK.Let),
+  mkRule!(r"^[a-zA-Z0-9_]+", TK.Identifier),
+  mkRule!(r"^;", TK.Semicolon),
+  mkRule!(r"^\.", TK.Dot),
+  mkRule!(r"^\=", TK.Equal),
+  mkRule!(r"^\s+", TK.White),
+  mkRule!("^//.*\n", TK.White), // C++ style comments
+  mkRule!(r"^,", TK.Comma),
+  mkRule!(r"^\+", TK.Plus),
+  mkRule!(r"^\*", TK.Mul),
+  mkRule!(r"^\/", TK.Div),
+  mkRule!(r"^\%", TK.Mod),
+  mkRule!(r"^-", TK.Minus),
+  mkRule!(r"^\(", TK.LeftPar),
+  mkRule!(r"^\)", TK.RightPar),
+  mkRule!(r"^\{", TK.LeftBrace),
+  mkRule!(r"^\}", TK.RightBrace),
+  mkRule!(r"^\[", TK.LeftBracket),
+  mkRule!(r"^\]", TK.RightBracket),
+];
 
