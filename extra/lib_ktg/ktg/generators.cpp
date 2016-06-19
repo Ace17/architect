@@ -1,3 +1,5 @@
+#include <vector>
+#include <cmath>
 #include "gentexture.h"
 #include "helpers.h"
 

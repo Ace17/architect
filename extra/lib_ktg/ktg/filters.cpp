@@ -16,6 +16,7 @@
 #include "gentexture.h"
 #include "helpers.h"
 #include <cstring>
+#include <vector>
 
 void ColorMatrixTransform(Texture* dest, const Texture& x, Matrix44& matrix, bool clampPremult)
 {

@@ -18,7 +18,7 @@ import std.algorithm;
 import std.conv;
 import std.random;
 
-import misc;
+import misc : blend;
 
 import execute;
 import value;
